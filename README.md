@@ -6,7 +6,14 @@ schneller als wie hau den lukas
 
 
 ## Pyglet Prototype
-
+There ist a software prototype of the game for easier development and testing
+the rules. It uses pyglet as game engine. To use the prototype under Debian Linux run the following commands:
+```
+cd prototype
+apt install python3-pip
+pip3 install -r requirements.txt
+python3 prototype.py
+```
 
 ## Software
 ### Neopixel
@@ -19,7 +26,7 @@ schneller als wie hau den lukas
 ## Bill Of Material
 ### Gamecontrolmaster
 | Number | Name | Price |
--------------------------
+| ------ | ---- | ----- |
 | 1x | Pi3 (or an old notebook) | 50€ |
 | 1x 5m | Neopixel + power supply  | 50€ |
 | | wood |
@@ -28,7 +35,7 @@ schneller als wie hau den lukas
 
 ### Gamepads (each)
 | Number | Name | Price |
--------------------------
+| ------ | ---- | ----- |
 | 1x | nodemcu | 7€ |
 | 1x | li-ion bms | 1€ |
 | 1x | 5V step up | 1,50€ |
