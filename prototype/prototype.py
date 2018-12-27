@@ -38,46 +38,20 @@ class Prototype(pyglet.window.Window):
         self.headtext = "Ring the bell!"
         self.helptext = "test with keyboard numbers..."
         self.helptext2 = "[q]uit"
-        ## default images
-        self.batch = pyglet.graphics.Batch()
-        self.bar_grey = pyglet.resource.image("bar_grey.png")
-        self.bar_red = pyglet.resource.image("bar_red.png")
-        self.bar_green = pyglet.resource.image("bar_green.png")
-        self.bar_blue = pyglet.resource.image("bar_blue.png")
-        self.bar_win = pyglet.resource.animation("bar_win.gif")
-        self.bar_sprites = [
-            pyglet.sprite.Sprite(self.bar_grey, x = 10, y = 10, batch=self.batch),
-            pyglet.sprite.Sprite(self.bar_grey, x = 10, y = 50, batch=self.batch),
-            pyglet.sprite.Sprite(self.bar_grey, x = 10, y = 90, batch=self.batch),
-            pyglet.sprite.Sprite(self.bar_grey, x = 10, y = 130, batch=self.batch),
-            pyglet.sprite.Sprite(self.bar_grey, x = 10, y = 170, batch=self.batch),
-            pyglet.sprite.Sprite(self.bar_grey, x = 10, y = 210, batch=self.batch),
-            pyglet.sprite.Sprite(self.bar_grey, x = 10, y = 250, batch=self.batch),
-            pyglet.sprite.Sprite(self.bar_grey, x = 10, y = 290, batch=self.batch),
-            pyglet.sprite.Sprite(self.bar_grey, x = 10, y = 330, batch=self.batch),
-            pyglet.sprite.Sprite(self.bar_grey, x = 10, y = 370, batch=self.batch),
-        ]
-        self.button_grey = pyglet.resource.image("button_grey.png")
-        self.button_red = pyglet.resource.image("button_red.png")
-        self.button_green = pyglet.resource.image("button_green.png")
-        self.button_blue = pyglet.resource.image("button_blue.png")
-        self.player1_sprites = [
-            pyglet.sprite.Sprite(self.button_grey, x = 150, y = 10, batch=self.batch),
-            pyglet.sprite.Sprite(self.button_grey, x = 180, y = 10, batch=self.batch),
-            pyglet.sprite.Sprite(self.button_grey, x = 210, y = 10, batch=self.batch),
-        ]
         ## default audio
         #pyglet.options['audio'] = ('openal', 'pulse', 'silent')
         #pyglet.options['audio'] = ('pulse', 'silent')
         #self.sound_win = pyglet.resource.media("tada.mp3")
         #self.sound_win = pyglet.media.load("data/audio/tada.wav", streaming = False)
-        p1 = Player("1", 150, 10)
-        p2 = Player("2", 250, 10)
-        p3 = Player("3", 350, 10)
-        print(p1.get_buttons())
-        p1.set_buttons(0, 2, 1)
-        print(p1.get_buttons())
-        #p1.print()
+        ## create bar and players
+        self.bar = Bar(10, 0, 10, 10)
+        #print(self.bar.get_status())
+        self.p1 = Player("uno", 150, 10)
+        #print(self.p1.get_status())
+        self.p2 = Player("dos", 190, 10)
+        #print(self.p2.get_status())
+        self.p3 = Player("tres", 230, 10)
+        #print(self.p3.get_status())
 
     def update(self, dt):
         """ You need the dt argument there to prevent errors,
@@ -121,8 +95,16 @@ class Prototype(pyglet.window.Window):
         self.helpline2.draw()
 
     def draw_sprites(self):
-        ## 2D Sprites
-        self.batch.draw()
+        ## sprites for ladder
+        bar_batch = self.bar.get_batch()
+        bar_batch.draw()
+        ## sprites for players
+        p1_batch = self.p1.get_batch()
+        p1_batch.draw()
+        p2_batch = self.p2.get_batch()
+        p2_batch.draw()
+        p3_batch = self.p3.get_batch()
+        p3_batch.draw()
 
     def update_sprite(self, number, color):
         if color == 0:
@@ -161,78 +143,145 @@ class Prototype(pyglet.window.Window):
         if symbol == pyglet.window.key.Q or symbol == pyglet.window.key.ESCAPE:
             print('INFO "Q" or "ESC" key was pressed. Good bye!')
             pyglet.app.exit()
-        elif symbol == pyglet.window.key._0 or symbol == pyglet.window.key.NUM_0:
-            print('INFO "0" key was pressed.')
-            self.helptext = '"0" key was pressed.'
-            self.update_sprite(0, 1)
         elif symbol == pyglet.window.key._1 or symbol == pyglet.window.key.NUM_1:
             print('INFO "1" key was pressed.')
             self.helptext = '"1" key was pressed.'
-            self.update_sprite(1, 2)
+            self.bar.set_element(1, 1)
         elif symbol == pyglet.window.key._2 or symbol == pyglet.window.key.NUM_2:
             print('INFO "2" key was pressed.')
             self.helptext = '"2" key was pressed.'
-            self.update_sprite(2, 3)
+            self.bar.set_element(1, 2)
         elif symbol == pyglet.window.key._3 or symbol == pyglet.window.key.NUM_3:
             print('INFO "3" key was pressed.')
             self.helptext = '"3" key was pressed.'
-            self.update_sprite(3, 1)
+            self.bar.set_element(1, 3)
         elif symbol == pyglet.window.key._4 or symbol == pyglet.window.key.NUM_4:
             print('INFO "4" key was pressed.')
             self.helptext = '"4" key was pressed.'
-            self.update_sprite(4, 2)
+            self.bar.set_element(1, 0)
         elif symbol == pyglet.window.key._5 or symbol == pyglet.window.key.NUM_5:
             print('INFO "5" key was pressed.')
             self.helptext = '"5" key was pressed.'
-            self.update_sprite(5, 3)
+            self.p1.set_buttons(0, 1, 0)
         elif symbol == pyglet.window.key._6 or symbol == pyglet.window.key.NUM_6:
             print('INFO "6" key was pressed.')
             self.helptext = '"6" key was pressed.'
-            self.update_sprite(6, 1)
+            self.p1.set_buttons(0, 2, 0)
         elif symbol == pyglet.window.key._7 or symbol == pyglet.window.key.NUM_7:
             print('INFO "7" key was pressed.')
             self.helptext = '"7" key was pressed.'
-            self.update_sprite(7, 2)
+            self.p1.set_buttons(0, 3, 0)
         elif symbol == pyglet.window.key._8 or symbol == pyglet.window.key.NUM_8:
             print('INFO "8" key was pressed.')
             self.helptext = '"8" key was pressed.'
-            self.update_sprite(8, 3)
+            self.p1.set_buttons(0, 0, 0)
         elif symbol == pyglet.window.key._9 or symbol == pyglet.window.key.NUM_9:
             print('INFO "9" key was pressed.')
             self.helptext = '"9" key was pressed.'
-            self.update_sprite(9, 1)
-            self.animate_win()
+            self.p3.set_buttons(1, 2, 3)
+        elif symbol == pyglet.window.key._0 or symbol == pyglet.window.key.NUM_0:
+            print('INFO "0" key was pressed.')
+            self.helptext = '"0" key was pressed.'
+            self.p3.set_buttons(2, 3, 1)
         elif symbol == pyglet.window.key.A:
             print('INFO "A" key was pressed.')
             self.helptext = '"A" key was pressed.'
-            self.update_player(1, 1, 1)
+            self.p2.set_buttons(1, 2, 3)
+        elif symbol == pyglet.window.key.S:
+            print('INFO "S" key was pressed.')
+            self.helptext = '"S" key was pressed.'
+            self.p2.set_buttons(2, 3, 1)
+        elif symbol == pyglet.window.key.D:
+            print('INFO "D" key was pressed.')
+            self.helptext = '"D" key was pressed.'
+            self.p2.set_buttons(3, 1, 2)
         else:
             print('INFO %s key was pressed.' % str(symbol))
             self.helptext = ('symbol "%s" was pressed.' % str(symbol))
 
+class Bar():
+    def __init__(self, elements, color, start_x, start_y):
+        """ initialize with:
+            number of elements, default color, first element x, first element y
+        """
+        self.x = start_x
+        self.y = start_y
+        self.bar_grey = pyglet.resource.image("bar_grey.png")
+        self.bar_red = pyglet.resource.image("bar_red.png")
+        self.bar_green = pyglet.resource.image("bar_green.png")
+        self.bar_blue = pyglet.resource.image("bar_blue.png")
+        self.bar_win = pyglet.resource.animation("bar_win.gif")
+        self.batch_bar = pyglet.graphics.Batch()
+        self.sprites_bar = []
+        print("intiate game bar with %s elements" % elements)
+        self.bar = {}
+        for i in range(0, elements):
+            self.bar[i] = color
+
+    def set_element(self, number, color):
+        self.bar[number] = color
+
+    def get_batch(self):
+        self.sprites_bar = []
+        color = self.bar_grey
+        for i in self.bar:
+            if self.bar[i] == 0:
+                color = self.bar_grey
+            if self.bar[i] == 1:
+                color = self.bar_red
+            if self.bar[i] == 2:
+                color = self.bar_green
+            if self.bar[i] == 3:
+                color = self.bar_blue
+            sprite = pyglet.sprite.Sprite(color, x = self.x, y = self.y + i * 40, batch=self.batch_bar)
+            self.sprites_bar.append(sprite)
+        return self.batch_bar
+
+    def get_status(self):
+        return self.bar
+
 class Player():
     def __init__(self, name, start_x, start_y):
         """ initialize with:
-            button number, first button x, first button y
+            name, first button x, first button y
         """
         print("hello my name is: %s" % name)
         self.name = name
-        self.start_x = start_x
-        self.start_y = start_y
-        self.buttons = {
-            "0" : [ start_x, start_y, 0 ],
-            "1" : [ start_x + 30, start_y, 0 ],
-            "2" : [ start_x + 60, start_y, 0 ],
-        }
+        self.x = start_x
+        self.y = start_y
+        self.button_grey = pyglet.resource.image("button_grey.png")
+        self.button_red = pyglet.resource.image("button_red.png")
+        self.button_green = pyglet.resource.image("button_green.png")
+        self.button_blue = pyglet.resource.image("button_blue.png")
+        self.batch_player = pyglet.graphics.Batch()
+        self.sprites_player = []
+        self.buttons = {}
+        self.set_buttons(0,0,0)
+        #for i in range(0, 3):
+            #self.buttons[i] = 0
 
     def set_buttons(self, color1, color2, color3):
-        self.buttons = {
-            "0" : [ self.start_x, self.start_y, color1 ],
-            "1" : [ self.start_x + 30, self.start_y, color2 ],
-            "2" : [ self.start_x + 60, self.start_y, color3 ],
-        }
+        self.buttons[0] = color1
+        self.buttons[1] = color2
+        self.buttons[2] = color3
 
-    def get_buttons(self):
+    def get_batch(self):
+        self.sprites_player = []
+        color = self.button_grey
+        for i in self.buttons:
+            if self.buttons[i] == 0:
+                color = self.button_grey
+            if self.buttons[i] == 1:
+                color = self.button_red
+            if self.buttons[i] == 2:
+                color = self.button_green
+            if self.buttons[i] == 3:
+                color = self.button_blue
+            sprite = pyglet.sprite.Sprite(color, x = self.x, y = self.y + i * 30, batch=self.batch_player)
+            self.sprites_player.append(sprite)
+        return self.batch_player
+
+    def get_status(self):
         return self.buttons
 
     def print(self):
