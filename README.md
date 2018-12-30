@@ -42,7 +42,7 @@ control the lights of the ladder
 ## Hardware
 
 ### Schematics
-![gamepad/gamepad_with_3_buttons_Steckplatine.png]
+![gamepad, buttons, leds](gamepad/gamepad_with_3_buttons_Steckplatine.png)
 
 * https://github.com/espressif/arduino-esp32
 * https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
