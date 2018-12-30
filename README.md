@@ -41,6 +41,13 @@ control the lights of the ladder
 
 ## Hardware
 
+### Schematics
+![gamepad/gamepad_with_3_buttons_Steckplatine.png]
+
+* https://github.com/espressif/arduino-esp32
+* https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
+* https://github.com/troelssiggaard/ESP32-fritzing-module - ESP32 wroom Fritzing part
+
 ### Bill Of Material
 #### Gamecontrolmaster
 | Number | Name | Price |
@@ -49,8 +56,9 @@ control the lights of the ladder
 | 1x 5m | Neopixel + power supply  | 50€ |
 | | wood | |
 | | speaker | |
+| | car horn | |
 | | flash light | |
-| | sum ca. | **ca 100€** |
+| | **sum** | **ca 100€** |
 
 #### Gamepads (each)
 | Number | Name | Price |
@@ -66,3 +74,4 @@ control the lights of the ladder
 | 3x | arcade buttons | 3,60€ |
 | 1x | self made case | 3,00€ |
 | | **sum** | **ca 20€** |
+
