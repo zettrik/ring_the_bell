@@ -12,6 +12,7 @@ https://pyglet.readthedocs.io/en/latest/
 import pyglet
 import pyglet.gl as gl
 import random
+import libs.udp_server
 
 screen_width = 640
 screen_height = 480
@@ -19,6 +20,7 @@ refresh_rate = 60.0  # values from 3.0 to 130.0
 image_width = 100
 image_height = 30
 bar_elements = 10 # aka number of level
+udp_server_port = 3333
 
 window = pyglet.window.Window()
 window.set_caption("ring the bell - aber schnell")
@@ -29,7 +31,7 @@ window.resizable = False
 joysticks = pyglet.input.get_joysticks()
 for i in joysticks:
     print(i.device)
-joystick = joysticks[2]
+joystick = joysticks[0]
 joystick.open()
 print("DEBUG A: %s" % joystick.device)
 print("DEBUG A: %s" % joystick.buttons)
@@ -224,6 +226,7 @@ def on_key_press(symbol, modifiers):
     if symbol == pyglet.window.key.Q or symbol == pyglet.window.key.ESCAPE:
         print('INFO "Q" or "ESC" key was pressed. Good bye!')
         pyglet.app.exit()
+        udp.stop()
     elif symbol == pyglet.window.key._1 or symbol == pyglet.window.key.NUM_1:
         print('INFO "1" key was pressed.')
         bar.set_element(1, 1)
@@ -273,6 +276,12 @@ def on_key_press(symbol, modifiers):
     elif symbol == pyglet.window.key.E:
         print('INFO "E" key was pressed.')
         bar.level_down()
+    elif symbol == pyglet.window.key.U:
+        print('INFO "U" key was pressed.')
+        recieved_packets = udp.get_packets()
+        for p in recieved_packets:
+            print("udp packet at: %s from: %s contained: %s" \
+                    % (p, recieved_packets[p][0], recieved_packets[p][1]))
     else:
         print('INFO %s key was pressed.' % str(symbol))
 
@@ -318,6 +327,9 @@ def on_joybutton_release(joystick, button):
 
 
 if __name__ == "__main__":
+    ## start local UDP server on given port 
+    udp = libs.udp_server.UDP_Server(udp_server_port)
+    udp.start()
     ## set pyglet details
     pyglet.clock.schedule_interval(update, 1.0 / refresh_rate)
     pyglet.clock.set_fps_limit(125)

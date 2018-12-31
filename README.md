@@ -38,6 +38,7 @@ python3 prototype.py
 control the lights of the ladder
 * https://dordnung.de/raspberrypi-ledstrip/ws2812
 
+* https://www.instructables.com/id/How-to-Use-an-RGB-LED/ - hue2rgb
 
 ## Hardware
 
