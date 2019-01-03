@@ -15,11 +15,36 @@ unsigned long wifi_connects = 0;
 /* udp */
 IPAddress server_ip(172, 16, 2, 232);
 const int server_port = 3333;
-const int led1 = 5; // on board LED
 AsyncUDP udp;
+char msg[9];
+
+/* I/O */
+const byte led0 = 5; // on board LED
+const byte led_1_r = 32; // red LED on first button
+const byte led_1_g = 33;
+const byte led_1_b = 25;
+const byte led_2_r = 26;
+const byte led_2_g = 27;
+const byte led_2_b = 14;
+const byte led_3_r = 12;
+const byte led_3_g = 13;
+const byte led_3_b = 15;
+const byte button1 = 36; // first input button
+const byte button2 = 39;
+const byte button3 = 34;
+byte button1_state = 0;
+byte button2_state = 0;
+byte button3_state = 0;
+byte button1_pressed = 0;
+byte button2_pressed = 0;
+byte button3_pressed = 0;
+unsigned long button1_presstime = 0;
+unsigned long button2_presstime = 0;
+unsigned long button3_presstime = 0;
 
 /* ntp */
-const char* ntpServer = "1.debian.pool.ntp.org";
+//const char* ntpServer = "1.debian.pool.ntp.org";
+const char* ntpServer = "172.16.2.232";
 const unsigned long check_ntp_interval = 36000000;
 const long  gmtOffset_sec = 3600;
 const int   daylightOffset_sec = 3600;
@@ -28,13 +53,26 @@ unsigned long before = 0;
 unsigned long rtc_now;
 unsigned long time_delta;
 unsigned long ntp_last_check;
+time_t unixseconds;
 
 void setup() {
     Serial.begin(115200);
     Serial.println("===");
     Serial.println(my_name);
     Serial.println("---");
-    pinMode(led1, OUTPUT);
+    pinMode(led0, OUTPUT);
+    pinMode(led_1_r, OUTPUT);
+    pinMode(led_1_g, OUTPUT);
+    pinMode(led_1_b, OUTPUT);
+    pinMode(led_2_r, OUTPUT);
+    pinMode(led_2_g, OUTPUT);
+    pinMode(led_2_b, OUTPUT);
+    pinMode(led_3_r, OUTPUT);
+    pinMode(led_3_g, OUTPUT);
+    pinMode(led_3_b, OUTPUT);
+    pinMode(button1, INPUT_PULLDOWN);
+    pinMode(button3, INPUT_PULLDOWN);
+    pinMode(button2, INPUT_PULLDOWN);
     
     setup_wifi();
     setup_udp_listener;
@@ -43,20 +81,57 @@ void setup() {
 }
 
 void loop() {
-    delay(1000);
-    udp.broadcastTo(my_name, server_port);
-    Serial.println("udp");
-    digitalWrite(led1, 0);
-    delay(1000);
-    digitalWrite(led1, 1);
-    delay(1000);
+    now = system_get_time();
+    digitalWrite(led0, 0);
+    button1_state = digitalRead(button1);
+    button2_state = digitalRead(button2);
+    button3_state = digitalRead(button3);
+    // save the first a time a button was pressed
+    if ((button1_state == 1) && (button1_pressed == 0)) {
+      button1_pressed = 1;
+      button1_presstime = system_get_time();
+    }
+    if (button2_state == 1) {
+      button2_pressed = 1;
+      button2_presstime = system_get_time();
+    }
+    if (button3_state == 1) {
+      button3_pressed = 1;
+      button3_presstime = system_get_time();
+    }
+    if ((before + 1000000) <= now){
+        if (button1_pressed == 1) {
+          digitalWrite(led_1_r, 1);
+          // convert uint32_t to char*
+          //sprintf(msg,"%16lu", now);
+          //udp.broadcastTo(msg, server_port);
+          sprintf(msg,"%16lu", button1_presstime);
+          udp.broadcastTo(msg, server_port);
+          delay(100);
+          sprintf_P(msg, (PGM_P)F("huhu: %16lu"), button1_presstime);
+          udp.broadcastTo(msg, server_port);
+          delay(100);
+          //Serial.println("button");
+          //Serial.println(now);
+          Serial.println(button1_presstime);
+          //print_local_time();
+          digitalWrite(led_1_r, 0);
+
+          time(&unixseconds);
+          Serial.println(unixseconds);
+        }
+        before = now;
+        button1_pressed = 0;
+        button2_pressed = 0;
+        button3_pressed = 0;
+    }
 }
 
 /*
  * udp
  */
 void setup_udp_listener() {
-    if(udp.connect(server_ip, server_port)) {
+    if (udp.connect(server_ip, server_port)) {
         Serial.println("UDP connected");
         udp.onPacket([](AsyncUDPPacket packet) {
             Serial.print("UDP Packet Type: ");
@@ -94,11 +169,11 @@ void setup_wifi() {
   //while(WiFi.status() != WL_CONNECTED) {
   for (int i = 0; i <= 79; i++) {
     // blink slowly while connecting
-    digitalWrite(led1, 0);
+    digitalWrite(led0, 0);
     delay(250);
-    digitalWrite(led1, 1);
+    digitalWrite(led0, 1);
     delay(125);
-    digitalWrite(led1, 0);
+    digitalWrite(led0, 0);
     Serial.print(".");
     if (WiFi.status() == WL_CONNECTED) {
       i = 80;
@@ -129,7 +204,7 @@ void check_ntp_time() {
     print_local_time();
   }
 }
-
+          
 void print_local_time() {
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
@@ -137,8 +212,6 @@ void print_local_time() {
     return;
   }
   Serial.print("local time: ");
-  Serial.print(system_get_time());
-  Serial.print(", ");
   Serial.println(&timeinfo, "%Y-%m-%d %H:%M:%S");
 }
 

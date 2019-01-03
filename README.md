@@ -2,24 +2,33 @@
 schneller als wie hau den lukas
 
 ## Game Principle
-### Rules
+### Rules Of "Climb The Ladder"
 The goal of this game is to climb the ladder and ring the bell. But
 you won't climb alone. You have to be fast as a team.
 
 The ladder has ten random blinking lights. Every player has a gamepad with three
 blinking buttons. They also change the color at random. In one moment a color will
 settle on the ladder as one the gamepads. Press as fast as you can all buttons 
-with same color. All of you have to hit the right button just in time to climb one
-step up.
+with same color. All of you have to do is hit the right button just in time to 
+climb one step up.
 
 If one of you ist too slow, the next round will start at the same level.
 If one of you hits a wrong button, you fall one step down.
 
-Start of the game will be easy and you might climp up quickly.
-But then some unforseen things will happen.
+Start of the game will be easy and you will climp up quickly. As you raise level
+your time will shorten. Also some unforseen things might happen at any time.
 
 Will you reach the top and ring the bell?
 
+### Game States
+There is only a limited number of differnent states in the game. Test them in
+the prototype with the letters in the brackets.
+* [r] random blinking
+* [t] wait for reactions
+* [u] levelling up
+* [d] levelling down
+* [w] win / reaching top
+* [q] quit
 
 ## Pyglet Prototype
 There is a software prototype of the game for easier development, testing
@@ -34,11 +43,42 @@ python3 prototype.py
 ```
 
 ## Software
-### Neopixel
+### Gamecontrolmaster
+* Raspeberry Pi with Debian Stretch
+  * install python3 + requirements
+  * ntp server - add this line to /etc/ntp.conf:
+    * restrict 172.16.2.0 mask 255.255.255.0 nomodify notrap
+  * open firewall ports:
+    * 123 for ntp
+    * 3333 for ingame udp server
+  * start prototype.py
+    * starts UDP server in separate thread
+
+### Gamepads
+* gamepad.ino
+  * recieves time from local ntp server
+  * recieves game states from gamecontrolmaster
+  * animates button colors
+  * sends button states to master
+
+### LED Light Bar
+* https://www.instructables.com/id/How-to-Use-an-RGB-LED/ - hue2rgb
+
+#### Tri LED Show Bar DMX
+* https://www.thomann.de/de/stairville_show_bar_triled_18x3wb_stock.htm
+* https://www.ebay.de/itm/Showtec-Cameleon-Bar-12-3-IP65-LED-12x-3W-RGB-Light-DMX-Lichtleiste-Outdoor-/201976229900
+
+* https://github.com/trevordavies095/DmxPy
+* https://www.openlighting.org/
+  * https://github.com/OpenLightingProject
+```
+apt install ola
+```
+* http://localhost:9090
+
+#### Neopixel
 control the lights of the ladder
 * https://dordnung.de/raspberrypi-ledstrip/ws2812
-
-* https://www.instructables.com/id/How-to-Use-an-RGB-LED/ - hue2rgb
 
 ## Hardware
 
@@ -53,13 +93,12 @@ control the lights of the ladder
 #### Gamecontrolmaster
 | Number | Name | Price |
 | ------ | ---- | ----- |
-| 1x | Pi3 (or an old notebook) | 50€ |
-| 1x 5m | Neopixel + power supply  | 50€ |
+| 1x | Pi3 with case, sd-card, power supply | 50€ |
+| 1x | 18x 3W RGB Tri LED DMX Show Bar  | 200€ |
 | | wood | |
 | | speaker | |
 | | car horn | |
-| | flash light | |
-| | **sum** | **ca 100€** |
+| | **sum** | **ca 250€** |
 
 #### Gamepads (each)
 | Number | Name | Price |
@@ -73,6 +112,6 @@ control the lights of the ladder
 | 1x | blue LED for connection status | 0,01€ |
 | 1x | kippschalter | 1€ |
 | 3x | arcade buttons | 3,60€ |
-| 1x | self made case | 3,00€ |
-| | **sum** | **ca 20€** |
+| 1x | self made wooden case | 10,00€ |
+| | **sum** | **ca 30€** |
 

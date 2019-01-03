@@ -9,7 +9,7 @@ HOST = "0.0.0.0"
 PORT = 8888
 ## Size of receive buffer
 ## we use just one byte for the button id
-BUFFER_SIZE = 1
+BUFFER_SIZE = 1024
 
 class UDP_Server():
     def __init__(self, port):

@@ -12,6 +12,7 @@ https://pyglet.readthedocs.io/en/latest/
 import pyglet
 import pyglet.gl as gl
 import random
+import time
 import libs.udp_server
 
 screen_width = 640
@@ -37,8 +38,8 @@ print("DEBUG A: %s" % joystick.device)
 print("DEBUG A: %s" % joystick.buttons)
 print("DEBUG A: %s" % joystick.x)
 
-
-
+""" Initializations
+"""
 def set2D():
     """ Configure OpenGL to draw in 2D.
     """
@@ -68,6 +69,9 @@ def init_gamepad():
     if gamepad:
         print("DEBUG A: %s" % gamepad.buttons)
 
+
+""" Helper Routines
+"""
 def animate_fall():
     print(bar.get_status())
     print(bar.get_element(len(bar.get_status().keys())-1))
@@ -78,13 +82,50 @@ def animate_fall():
         else:
             bar.set_element(i, bar.get_element(i+1))
 
-def animate_win():
-    #bar.set_all({0:1,1:1,2:1,3:2,4:2,5:2,6:3,7:3,8:3,9:1})
-    #TODO
-    pass
+def wait_for_reactions():
+    round_color = random.randint(1,3)
+    bar.set_all_at_level(round_color)
+    round_starttime = time.time()
+    count_time = bar_elements - bar.get_level()
+    recieved_packets = {}
+    draw_sprites()
+    bar.save_state()
+    #TODO send state info to gamepad
+    p1.save_state()
+    p2.save_state()
+    p3.save_state()
+    #TODO in thread
+    print("starting countdown")
+    for t in range(count_time):
+        print(count_time - t)
+        time.sleep(1)
+    print(bar.get_saved_state())
+    print(p1.get_saved_state())
+    print(p2.get_saved_state())
+    print(p3.get_saved_state())
+    #saved_state = all saved player states
+    recieved_packets = udp.get_packets()
+    for p in recieved_packets:
 
-def set_all_random():
-    bar.set_random()
+        print("udp packet at: %s from: %s contained: %s" \
+                % (p, recieved_packets[p][0], recieved_packets[p][1]))
+    #player_state = alle recieved button states
+    """ for p in active_players:
+         for button in p.get_saved_state():
+            if pad_button[color] == round_color and \
+               pad_button[time] < round_starttime + count_time:
+                    add to round_state
+
+        if round_state == saved_state():
+            level_up()
+        else:
+            let bar and every right pressed button blink for 5 seconds
+            and start same round again
+    """
+
+
+def set_random():
+    bar.set_random_at_level()
     p1.set_random()
     p2.set_random()
     p3.set_random()
@@ -92,10 +133,14 @@ def set_all_random():
     p1.save_state()
     p2.save_state()
     p3.save_state()
-    print(p1.get_state())
+    print(p1.get_saved_state())
+    print(p2.get_saved_state())
+    print(p3.get_saved_state())
     print(bar.get_level())
 
 
+""" Game Classes
+"""
 class Bar():
     def __init__(self, elements, color, start_x, start_y):
         """ initialize with:
@@ -125,11 +170,20 @@ class Bar():
     def set_all(self, colors):
         for i in self.bar:
             self.bar[i] = colors
-        #self.bar = colors
+
+    def set_all_at_level(self, colors):
+        for i in self.bar:
+            if i >= self.bar_level:
+                self.bar[i] = colors
 
     def set_random(self):
         for i in self.bar:
             self.bar[i] = random.randint(1,3)
+
+    def set_random_at_level(self):
+        for i in self.bar:
+            if i >= self.bar_level:
+                self.bar[i] = random.randint(1,3)
 
     def get_batch(self):
         self.sprites_bar = []
@@ -142,7 +196,7 @@ class Bar():
                 color = self.bar_green
             if self.bar[i] == 3:
                 color = self.bar_blue
-            if i == self.bar_level:
+            if i < self.bar_level:
                levelmarker = 40
             sprite = pyglet.sprite.Sprite(color, batch=self.batch_bar,
                     x = self.x + levelmarker,
@@ -153,7 +207,7 @@ class Bar():
     def save_state(self):
         self.bar_saved = self.bar
 
-    def get_state(self):
+    def get_saved_state(self):
         return self.bar_saved
 
     def level_up(self):
@@ -163,6 +217,10 @@ class Bar():
     def level_down(self):
         if self.bar_level > 0:
             self.bar_level -= 1
+
+    def set_level(self, number):
+        if number >= 0 and number <= len(self.bar):
+            self.bar_level = number
 
     def get_level(self):
         return self.bar_level
@@ -183,6 +241,7 @@ class Player():
         self.batch_player = pyglet.graphics.Batch()
         self.sprites_player = []
         self.buttons = {}
+        self.buttons_saved = {}
         self.set_buttons(0,0,0)
         #for i in range(0, 3):
             #self.buttons[i] = 0
@@ -216,11 +275,12 @@ class Player():
     def save_state(self):
         self.buttons_saved = self.buttons
 
-    def get_state(self):
+    def get_saved_state(self):
         return self.buttons_saved
 
 
-
+""" Ingame reactions
+"""
 @window.event
 def on_key_press(symbol, modifiers):
     if symbol == pyglet.window.key.Q or symbol == pyglet.window.key.ESCAPE:
@@ -261,30 +321,29 @@ def on_key_press(symbol, modifiers):
     elif symbol == pyglet.window.key.A:
         print('INFO "A" key was pressed.')
         p2.set_buttons(1, 2, 3)
-    elif symbol == pyglet.window.key.S:
-        print('INFO "S" key was pressed.')
-        p2.set_buttons(2, 3, 1)
+    elif symbol == pyglet.window.key.T:
+        print('INFO "T" key was pressed.')
+        wait_for_reactions();
     elif symbol == pyglet.window.key.D:
         print('INFO "D" key was pressed.')
-        p2.set_buttons(3, 1, 2)
+        bar.level_down()
     elif symbol == pyglet.window.key.R:
         print('INFO "R" key was pressed.')
-        set_all_random()
+        set_random()
     elif symbol == pyglet.window.key.W:
         print('INFO "W" key was pressed.')
-        bar.level_up()
+        bar.set_level(bar_elements)
     elif symbol == pyglet.window.key.E:
         print('INFO "E" key was pressed.')
-        bar.level_down()
-    elif symbol == pyglet.window.key.U:
-        print('INFO "U" key was pressed.')
         recieved_packets = udp.get_packets()
         for p in recieved_packets:
             print("udp packet at: %s from: %s contained: %s" \
                     % (p, recieved_packets[p][0], recieved_packets[p][1]))
+    elif symbol == pyglet.window.key.U:
+        print('INFO "U" key was pressed.')
+        bar.level_up()
     else:
         print('INFO %s key was pressed.' % str(symbol))
-
 
 @window.event
 def on_draw():
@@ -321,6 +380,7 @@ def on_joybutton_press(joystick, button):
     print("DEBUG A: %s" % joystick.buttons)
     print(button)
 
+@window.event
 def on_joybutton_release(joystick, button):
     print("DEBUG A: %s" % joystick.buttons)
     print(button)
