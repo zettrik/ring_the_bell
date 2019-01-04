@@ -148,10 +148,11 @@ class Bar():
         """
         self.x = start_x
         self.y = start_y
-        self.bar_grey = pyglet.resource.image("bar_grey.png")
-        self.bar_red = pyglet.resource.image("bar_red.png")
-        self.bar_green = pyglet.resource.image("bar_green.png")
-        self.bar_blue = pyglet.resource.image("bar_blue.png")
+        self.bar_grey = pyglet.resource.image("comb_grey.png")
+        self.bar_red = pyglet.resource.image("comb_red.png")
+        self.bar_green = pyglet.resource.image("comb_green.png")
+        self.bar_blue = pyglet.resource.image("comb_blue.png")
+        self.bar_gold = pyglet.resource.image("comb_gold.png")
         self.batch_bar = pyglet.graphics.Batch()
         self.sprites_bar = []
         print("intiate game bar with %s elements" % elements)
@@ -187,6 +188,9 @@ class Bar():
 
     def get_batch(self):
         self.sprites_bar = []
+        sprite = pyglet.sprite.Sprite(self.bar_grey, batch=self.batch_bar,
+                x = self.x + 50, y = self.y)
+        self.sprites_bar.append(sprite)
         for i in self.bar:
             color = self.bar_grey
             levelmarker = 0
@@ -197,11 +201,15 @@ class Bar():
             if self.bar[i] == 3:
                 color = self.bar_blue
             if i < self.bar_level:
-               levelmarker = 40
-            sprite = pyglet.sprite.Sprite(color, batch=self.batch_bar,
-                    x = self.x + levelmarker,
-                    y = self.y + i * 40,)
-            self.sprites_bar.append(sprite)
+                sprite = pyglet.sprite.Sprite(self.bar_gold, batch=self.batch_bar,
+                        x = self.x + (i % 2) * 50,
+                        y = self.y + 30 + i * 30,)
+                self.sprites_bar.append(sprite)
+            else:
+                sprite = pyglet.sprite.Sprite(color, batch=self.batch_bar,
+                        x = self.x + (i % 2) * 50,
+                        y = self.y + 30 + i * 30,)
+                self.sprites_bar.append(sprite)
         return self.batch_bar
 
     def save_state(self):
@@ -234,6 +242,7 @@ class Player():
         self.name = name
         self.x = start_x
         self.y = start_y
+        self.pad_grey = pyglet.resource.image("pad_grey.png")
         self.button_grey = pyglet.resource.image("button_grey.png")
         self.button_red = pyglet.resource.image("button_red.png")
         self.button_green = pyglet.resource.image("button_green.png")
@@ -257,6 +266,8 @@ class Player():
 
     def get_batch(self):
         self.sprites_player = []
+        sprite = pyglet.sprite.Sprite(self.pad_grey, x = self.x, y = self.y, batch=self.batch_player)
+        self.sprites_player.append(sprite)
         for i in self.buttons:
             color = self.button_grey
             if self.buttons[i] == 1:
@@ -265,7 +276,8 @@ class Player():
                 color = self.button_green
             if self.buttons[i] == 3:
                 color = self.button_blue
-            sprite = pyglet.sprite.Sprite(color, x = self.x, y = self.y + i * 30, batch=self.batch_player)
+            sprite = pyglet.sprite.Sprite(color, x = self.x + 20 + i * 20, y =
+                    self.y + 15 + ((i + 1) % 2 * 28), batch=self.batch_player)
             self.sprites_player.append(sprite)
         return self.batch_player
 
@@ -407,11 +419,11 @@ if __name__ == "__main__":
     ## create bar and players
     bar = Bar(bar_elements, 0, 10, 10)
     bar.set_random()
-    p1 = Player("uno", 190, 10)
+    p1 = Player("uno", 200, 50)
     p1.set_random()
-    p2 = Player("dos", 290, 10)
+    p2 = Player("dos", 310, 120)
     p2.set_random()
-    p3 = Player("tres", 390, 10)
+    p3 = Player("tres", 420, 190)
     p3.set_random()
     ## winning animation
     win_animation_res = pyglet.resource.animation("win_animation.gif")

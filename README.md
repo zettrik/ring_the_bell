@@ -61,12 +61,16 @@ python3 prototype.py
   * animates button colors
   * sends button states to master
 
-### LED Light Bar
+### RGB Light Bar
 * https://www.instructables.com/id/How-to-Use-an-RGB-LED/ - hue2rgb
 
 #### Tri LED Show Bar DMX
 * https://www.thomann.de/de/stairville_show_bar_triled_18x3wb_stock.htm
 * https://www.ebay.de/itm/Showtec-Cameleon-Bar-12-3-IP65-LED-12x-3W-RGB-Light-DMX-Lichtleiste-Outdoor-/201976229900
+* https://www.ebay.de/itm/U-king-72W-10PCS-36LED-Par-RGB-Buhnenlicht-DMX-512-Disco-DJ-Wedding-Party-Lichts/292784228642?hash=item442b4cc922:g:irwAAOSwRNhbzr0r:rk:13:pf:0
+* https://www.ebay.de/itm/U-king-10STK-36W-Buhnenlicht-18LED-Par-RGB-Licht-7CH-Channel-Disco-Wedding-Party/292806135256?_trkparms=aid%3D444000%26algo%3DSOI.DEFAULT%26ao%3D1%26asc%3D20170221122447%26meid%3D339054517f2c4988a4da3474d06ac717%26pid%3D100752%26rk%3D3%26rkt%3D6%26sd%3D292784228642%26itm%3D292806135256&_trksid=p2047675.c100752.m1982
+* https://www.ebay.de/itm/10stk-RGBW-12LED-Par-Buhnenbeleuchtung-DMX512-Licht-Disco-Party-Lichteffekt-F2Y1/183417140600?_trkparms=aid%3D222007%26algo%3DSIM.MBE%26ao%3D1%26asc%3D52545%26meid%3D2c4fce730ffb4a258fd2ce8ef1319b32%26pid%3D100010%26rk%3D6%26rkt%3D12%26sd%3D292784228642%26itm%3D183417140600&_trksid=p2047675.c100010.m2109
+* https://www.ebay.de/itm/24x-3W-RGB-LED-Bar-Wall-Washer-8-Sektionen-DMX-Stage-Scheinwerfer-Lichtleiste/332858111664?epid=26014989146&hash=item4d7fe3b6b0:g:gCoAAOSwhZ5b1vIN:rk:10:pf:0
 
 * https://github.com/trevordavies095/DmxPy
 * https://www.openlighting.org/
@@ -80,6 +84,11 @@ apt install ola
 control the lights of the ladder
 * https://dordnung.de/raspberrypi-ledstrip/ws2812
 
+#### DIY Power LED
+* 10x RGB 3W LED
+* I2C shield
+* 3.3V-5V level shifter: 74HCT245
+
 ## Hardware
 
 ### Schematics
@@ -90,12 +99,14 @@ control the lights of the ladder
 * https://github.com/troelssiggaard/ESP32-fritzing-module - ESP32 wroom Fritzing part
 
 ### Bill Of Material
-#### Gamecontrolmaster
+#### Gamecontrolmaster & Light Bar
 | Number | Name | Price |
 | ------ | ---- | ----- |
 | 1x | Pi3 with case, sd-card, power supply | 50€ |
-| 1x | 18x 3W RGB Tri LED DMX Show Bar  | 200€ |
-| | wood | |
+| 1x | Light Bar | 200€ |
+| 11x | comb from 6x wood (12mm x 12mm x 9mm)| 30€ |
+| 11x | milk glass as front plate for combs (24mm x 24mm) | 70€ |
+| 11x | wooden back plate for combs (24mm x 24mm) | 70€ |
 | | speaker | |
 | | car horn | |
 | | **sum** | **ca 250€** |
@@ -112,6 +123,6 @@ control the lights of the ladder
 | 1x | blue LED for connection status | 0,01€ |
 | 1x | kippschalter | 1€ |
 | 3x | arcade buttons | 3,60€ |
-| 1x | self made wooden case | 10,00€ |
+| 1x | comb from 6x wood (12mm x 12mm x 9mm)| 3€ |
 | | **sum** | **ca 30€** |
 
