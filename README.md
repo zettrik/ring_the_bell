@@ -24,7 +24,7 @@ Will you reach the top and ring the bell?
 There is only a limited number of differnent states in the game. Test them in
 the prototype with the letters in the brackets.
 * [r] random blinking
-* [t] wait for reactions
+* [f] freeze, wait for reactions
 * [u] levelling up
 * [d] levelling down
 * [w] win / reaching top
@@ -53,13 +53,33 @@ python3 prototype.py
     * 3333 for ingame udp server
   * start prototype.py
     * starts UDP server in separate thread
+    * shows game state on screen
+    * send UDP packets with game state
+    * recieves UDP packets with buttons states from pads
+
+#### UDP Packets
+* modus can be:
+  * 0: nothing
+  * 1: Helo
+  * 2: Freeze
+  * 3: Release
+  * 4: NTP resync
+  * 5: Animation1
+  * 6: Animation2
 
 ### Gamepads
 * gamepad.ino
   * recieves time from local ntp server
-  * recieves game states from gamecontrolmaster
+  * recieves commands from gamecontrolmaster
+    * game states
+    * ntp resync
   * animates button colors
   * sends button states to master
+
+#### UDP Packets
+* timestamp, button1, color, dt, button2, color, dt, button3, color, dt
+ * dt means after how many ms button was last pressed in this second
+ * e.g.: "1546727493, 1,1,0, 2,3,427, 3,1,755"
 
 ### RGB Light Bar
 * https://www.instructables.com/id/How-to-Use-an-RGB-LED/ - hue2rgb
@@ -80,14 +100,17 @@ apt install ola
 ```
 * http://localhost:9090
 
-#### Neopixel
-control the lights of the ladder
+#### LED Stripes, Neopixel
 * https://dordnung.de/raspberrypi-ledstrip/ws2812
+* https://diystagedesign.wordpress.com/2014/06/06/rgb-led-strip-panels/
 
 #### DIY Power LED
 * 10x RGB 3W LED
 * I2C shield
 * 3.3V-5V level shifter: 74HCT245
+* Darlington ULN2003 with multi channel use or 3.3V n-channel mosfet
+* https://learn.adafruit.com/rgb-led-strips/usage
+* http://www.tbideas.com/blog/build-an-arduino-shield-to-drive-high-power-rgb-led/
 
 ## Hardware
 

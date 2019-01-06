@@ -5,8 +5,9 @@ import threading
 
 ## bind all IP
 HOST = "0.0.0.0"
+BRDCST = "255.255.255.255"
 ## Listen on Port
-PORT = 8888
+PORT = 3333
 ## Size of receive buffer
 ## we use just one byte for the button id
 BUFFER_SIZE = 1024
@@ -66,6 +67,26 @@ class UDP_Server():
         ## empty local packet buffer
         self.packets = {}
         return pckts
+
+    def send(self, msg):
+        """ send UDP packet as broadcast
+        """
+        #print("sending UDP broadcast: %s" % msg)
+        message = str(msg).encode()
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        s.sendto(message, (BRDCST, PORT))
+        s.close()
+
+    def send_to_ip(self, ip, msg):
+        """ send UDP packet to IP
+        """
+        #print("sending UDP message to IP: %s %s" % (msg, ip))
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect((ip, PORT))
+        s.send(bytes(msg, "utf-8"))
+        s.close()
 
 if __name__ == "__main__":
     print("Starting simple UDP server in endless while loop on port %s." % PORT)

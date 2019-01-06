@@ -161,6 +161,17 @@ class Bar():
         self.bar = {}
         for i in range(0, elements):
             self.bar[i] = color
+        """ possible game states are:
+            0: "HELO", 1: "NTP_RESYNC", 2: "FREEZE", 3: "RELEASE",
+            5: "RANDOM", 6: "LEVEL_DOWN", 7: "LEVEL_UP", 8: "WIN"
+        """
+        self.game_state = 0
+
+    def set_game_state(self, state):
+        """ set state in master and broadcast to all gamepads
+        """
+        self.game_state = state
+        udp.send(self.game_state)
 
     def set_element(self, number, color):
         self.bar[number] = color
@@ -330,11 +341,16 @@ def on_key_press(symbol, modifiers):
     elif symbol == pyglet.window.key._0 or symbol == pyglet.window.key.NUM_0:
         print('INFO "0" key was pressed.')
         bar.set_all(random.randint(1,3))
-    elif symbol == pyglet.window.key.A:
-        print('INFO "A" key was pressed.')
-        p2.set_buttons(1, 2, 3)
+    elif symbol == pyglet.window.key.S:
+        print('INFO "S" key was pressed.')
+        bar.set_game_state(0)
+        #udp.send(1, 1)
     elif symbol == pyglet.window.key.T:
         print('INFO "T" key was pressed.')
+        bar.set_game_state(1)
+    elif symbol == pyglet.window.key.F:
+        print('INFO "F" key was pressed.')
+        bar.set_game_state(2)
         wait_for_reactions();
     elif symbol == pyglet.window.key.D:
         print('INFO "D" key was pressed.')
@@ -342,6 +358,7 @@ def on_key_press(symbol, modifiers):
     elif symbol == pyglet.window.key.R:
         print('INFO "R" key was pressed.')
         set_random()
+        bar.set_game_state(5)
     elif symbol == pyglet.window.key.W:
         print('INFO "W" key was pressed.')
         bar.set_level(bar_elements)

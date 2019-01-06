@@ -4,10 +4,13 @@
 #include <time.h>
 #include <esp_wifi.h>
 
+/* gamepad */
+const char *my_name = "uno";
+const int gamepad_version = 1;
+
 /* wifi */
-const char* my_name = "uno";
-const char* ssid = "***";
-const char* password = "***";
+const char *ssid = "***";
+const char *password = "***";
 IPAddress local_ip(127, 0, 0, 0); // will be set via dhcp
 WiFiClient espClient;
 unsigned long wifi_connects = 0;
@@ -15,8 +18,10 @@ unsigned long wifi_connects = 0;
 /* udp */
 IPAddress server_ip(172, 16, 2, 232);
 const int server_port = 3333;
+const unsigned long send_interval = 1000000; // 1s
 AsyncUDP udp;
-char msg[9];
+uint8_t *incoming = 0;
+char msg[15];
 
 /* I/O */
 const byte led0 = 5; // on board LED
@@ -43,8 +48,8 @@ unsigned long button2_presstime = 0;
 unsigned long button3_presstime = 0;
 
 /* ntp */
-//const char* ntpServer = "1.debian.pool.ntp.org";
-const char* ntpServer = "172.16.2.232";
+//const char *ntpServer = "1.debian.pool.ntp.org";
+const char *ntpServer = "172.16.2.232";
 const unsigned long check_ntp_interval = 36000000;
 const long  gmtOffset_sec = 3600;
 const int   daylightOffset_sec = 3600;
@@ -58,7 +63,10 @@ time_t unixseconds;
 void setup() {
     Serial.begin(115200);
     Serial.println("===");
+    Serial.print("my name is: ");
     Serial.println(my_name);
+    Serial.print("version: ");
+    Serial.println(gamepad_version);
     Serial.println("---");
     pinMode(led0, OUTPUT);
     pinMode(led_1_r, OUTPUT);
@@ -75,64 +83,96 @@ void setup() {
     pinMode(button2, INPUT_PULLDOWN);
     
     setup_wifi();
-    setup_udp_listener;
-    udp.broadcastTo("Hello my name is Uno!", server_port);
+    setup_udp_listener();
+    udp.broadcastTo("Hello my name is Uno running v1!", server_port);
     get_ntp_time();
 }
 
 void loop() {
-    now = system_get_time();
-    digitalWrite(led0, 0);
-    button1_state = digitalRead(button1);
-    button2_state = digitalRead(button2);
-    button3_state = digitalRead(button3);
-    // save the first a time a button was pressed
-    if ((button1_state == 1) && (button1_pressed == 0)) {
-      button1_pressed = 1;
-      button1_presstime = system_get_time();
-    }
-    if (button2_state == 1) {
-      button2_pressed = 1;
-      button2_presstime = system_get_time();
-    }
-    if (button3_state == 1) {
-      button3_pressed = 1;
-      button3_presstime = system_get_time();
-    }
-    if ((before + 1000000) <= now){
-        if (button1_pressed == 1) {
-          digitalWrite(led_1_r, 1);
-          // convert uint32_t to char*
-          //sprintf(msg,"%16lu", now);
-          //udp.broadcastTo(msg, server_port);
-          sprintf(msg,"%16lu", button1_presstime);
-          udp.broadcastTo(msg, server_port);
-          delay(100);
-          sprintf_P(msg, (PGM_P)F("huhu: %16lu"), button1_presstime);
-          udp.broadcastTo(msg, server_port);
-          delay(100);
-          //Serial.println("button");
-          //Serial.println(now);
-          Serial.println(button1_presstime);
-          //print_local_time();
-          digitalWrite(led_1_r, 0);
+  digitalWrite(led0, 0);
+  now = system_get_time();
+  read_buttons();
+  if ((before + send_interval) <= now) {
+    send_states();
+    before = now;
+  }
+  //test_reaction();
+}
 
-          time(&unixseconds);
-          Serial.println(unixseconds);
-        }
-        before = now;
-        button1_pressed = 0;
-        button2_pressed = 0;
-        button3_pressed = 0;
-    }
+/*
+ * test reaction time
+ */
+void test_reaction() {
+  Serial.println("testing reaction time");
+  delay(5700);
+  digitalWrite(led_1_r, 1);
+  button1_presstime = now - before;
+  sprintf(msg,"%16lu", button1_presstime);
+  udp.broadcastTo(msg, server_port);
+  digitalWrite(led_1_r, 0);
+}
+
+/*
+ * read actual state of buttons
+ */
+void read_buttons() {
+  button1_state = digitalRead(button1);
+  button2_state = digitalRead(button2);
+  button3_state = digitalRead(button3);
+  // save the first time a button was pressed in this interval
+  if ((button1_state == 1) && (button1_pressed == 0)) {
+    button1_pressed = 1;
+    button1_presstime = now - before;
+  }
+  if ((button2_state == 1) && (button2_pressed == 0)) {
+    button2_pressed = 1;
+    button2_presstime = now - before;
+  }
+  if ((button3_state == 1) && (button3_pressed == 0)) {
+    button3_pressed = 1;
+    button3_presstime = now - before;
+  }
+}
+
+/*
+ * send button states via udp
+ */
+void send_states() {      
+  digitalWrite(led_1_r, 1);
+  sprintf(msg,"%16lu", button1_presstime);
+  udp.broadcastTo(msg, server_port);
+
+  // some debug infos...
+  Serial.println("press times in micro seconds (b1, b2, b3)");
+  Serial.print(button1_presstime);
+  Serial.print(", ");
+  Serial.print(button2_presstime);
+  Serial.print(", ");
+  Serial.println(button3_presstime);
+  time(&unixseconds);
+  Serial.print("unixseconds: ");
+  Serial.println(unixseconds);
+  Serial.print("uptime: ");
+  Serial.println(now);
+        
+  button1_pressed = 0;
+  button2_pressed = 0;
+  button3_pressed = 0;
+  button1_presstime = 0;
+  button2_presstime = 0;
+  button3_presstime = 0;
+  digitalWrite(led_1_r, 0);
 }
 
 /*
  * udp
  */
 void setup_udp_listener() {
-    if (udp.connect(server_ip, server_port)) {
-        Serial.println("UDP connected");
+  if(udp.listen(server_port)) {
+        Serial.print("UDP Listening on: ");
+        Serial.print(WiFi.localIP());
+        Serial.print(":");
+        Serial.println(server_port);
         udp.onPacket([](AsyncUDPPacket packet) {
             Serial.print("UDP Packet Type: ");
             Serial.print(packet.isBroadcast()?"Broadcast":packet.isMulticast()?"Multicast":"Unicast");
@@ -149,8 +189,14 @@ void setup_udp_listener() {
             Serial.print(", Data: ");
             Serial.write(packet.data(), packet.length());
             Serial.println();
-            //reply to the client
-            packet.printf("Got %u bytes of data", packet.length());
+            incoming = packet.data();
+            /*TODO fix comparison
+            if (incoming == 2) {
+              Serial.println("---------FREEZE-----------");
+              //get in freeze mode
+            }
+            incoming = 0;
+            */
         });
     }
 }
