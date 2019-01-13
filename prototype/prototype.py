@@ -12,15 +12,17 @@ https://pyglet.readthedocs.io/en/latest/
 import pyglet
 import pyglet.gl as gl
 import random
+import datetime
 import time
 import libs.udp_server
+import libs.dmx
 
 screen_width = 640
 screen_height = 480
 refresh_rate = 60.0  # values from 3.0 to 130.0
 image_width = 100
 image_height = 30
-bar_elements = 10 # aka number of level
+bar_elements = 10 # aka number of levels
 udp_server_port = 3333
 
 window = pyglet.window.Window()
@@ -29,6 +31,7 @@ window.width = screen_width
 window.height = screen_height
 window.resizable = False
 
+"""
 joysticks = pyglet.input.get_joysticks()
 for i in joysticks:
     print(i.device)
@@ -37,6 +40,7 @@ joystick.open()
 print("DEBUG A: %s" % joystick.device)
 print("DEBUG A: %s" % joystick.buttons)
 print("DEBUG A: %s" % joystick.x)
+"""
 
 """ Initializations
 """
@@ -70,32 +74,23 @@ def init_gamepad():
         print("DEBUG A: %s" % gamepad.buttons)
 
 
-""" Helper Routines
+""" Game States & Helper Routines
 """
-def animate_fall():
-    print(bar.get_status())
-    print(bar.get_element(len(bar.get_status().keys())-1))
-    for i in bar.get_status():
-        print(i)
-        if i == 9:
-            bar.set_element(i, bar.get_element(0))
-        else:
-            bar.set_element(i, bar.get_element(i+1))
-
-def wait_for_reactions():
+def set_freeze():
     round_color = random.randint(1,3)
     bar.set_all_at_level(round_color)
-    round_starttime = time.time()
-    count_time = bar_elements - bar.get_level()
-    recieved_packets = {}
     draw_sprites()
+    #round_starttime = time.time()
+    count_time = int((bar_elements - bar.get_level()) / 3 )
+    print("DEBUG countdown starts with: %s" % count_time)
+    recieved_packets = {}
+    udp.clear_packet_cache()
     bar.save_state()
-    #TODO send state info to gamepad
     p1.save_state()
     p2.save_state()
     p3.save_state()
     #TODO in thread
-    print("starting countdown")
+    print("DEBUG starting countdown")
     for t in range(count_time):
         print(count_time - t)
         time.sleep(1)
@@ -105,12 +100,14 @@ def wait_for_reactions():
     print(p3.get_saved_state())
     #saved_state = all saved player states
     recieved_packets = udp.get_packets()
+    reactions = {}
     for p in recieved_packets:
-
-        print("udp packet at: %s from: %s contained: %s" \
+        print("DEBUG udp packet at: %s from: %s contained: %s" \
                 % (p, recieved_packets[p][0], recieved_packets[p][1]))
-    #player_state = alle recieved button states
-    """ for p in active_players:
+        if not reactions[str(recieved_packets[p][0])]:
+            reactions[str(recieved_packets[p][0])] = recieved_packets[p][1]
+    """
+    for p in active_players:
          for button in p.get_saved_state():
             if pad_button[color] == round_color and \
                pad_button[time] < round_starttime + count_time:
@@ -123,6 +120,10 @@ def wait_for_reactions():
             and start same round again
     """
 
+def set_release():
+    """ things to do after freeze
+    """
+    pass
 
 def set_random():
     bar.set_random_at_level()
@@ -137,6 +138,16 @@ def set_random():
     print(p2.get_saved_state())
     print(p3.get_saved_state())
     print(bar.get_level())
+
+def animate_fall():
+    print(bar.get_status())
+    print(bar.get_element(len(bar.get_status().keys())-1))
+    for i in bar.get_status():
+        print(i)
+        if i == 9:
+            bar.set_element(i, bar.get_element(0))
+        else:
+            bar.set_element(i, bar.get_element(i+1))
 
 
 """ Game Classes
@@ -153,49 +164,90 @@ class Bar():
         self.bar_green = pyglet.resource.image("comb_green.png")
         self.bar_blue = pyglet.resource.image("comb_blue.png")
         self.bar_gold = pyglet.resource.image("comb_gold.png")
+        self.bar_white = pyglet.resource.image("comb_white.png")
         self.batch_bar = pyglet.graphics.Batch()
         self.sprites_bar = []
-        print("intiate game bar with %s elements" % elements)
+        print("DEBUG intiate game bar with %s elements" % elements)
         self.bar_level = 0
         self.bar_saved = {}
         self.bar = {}
+        self.par_offset = 7 ## number of channels per par
         for i in range(0, elements):
             self.bar[i] = color
-        """ possible game states are:
-            0: "HELO", 1: "NTP_RESYNC", 2: "FREEZE", 3: "RELEASE",
-            5: "RANDOM", 6: "LEVEL_DOWN", 7: "LEVEL_UP", 8: "WIN"
-        """
+            dmx.set_rgb(i * self.par_offset + 1, color)
+        dmx.render()
         self.game_state = 0
 
     def set_game_state(self, state):
-        """ set state in master and broadcast to all gamepads
+        """ set game state in master and broadcast to all gamepads
+            see all possible game states below
         """
         self.game_state = state
         udp.send(self.game_state)
+        if self.game_state == 0:
+            print("INFO game state: START")
+        elif self.game_state == 1:
+            print("INFO game state: NTP_SYNC")
+            print("DEBUG time: %s  unix: %s" % (datetime.datetime.now(),
+                        time.time()))
+            time.sleep(2)
+        elif self.game_state == 2:
+            print("INFO game state: RANDOM")
+            set_random()
+        elif self.game_state == 3:
+            print("INFO game state: FREEZE")
+            set_freeze();
+            set_release();
+        elif self.game_state == 4:
+            print("INFO game state: RELEASE")
+            set_release();
+        elif self.game_state == 5:
+            print("INFO game state: LEVEL_UP")
+            self.level_up()
+        elif self.game_state == 6:
+            print("INFO game state: LEVEL_DOWN")
+            self.level_down()
+        elif self.game_state == 7:
+            print("INFO game state: WIN")
+            self.set_level(bar_elements)
+        else:
+            print("INFO no such game state")
 
     def set_element(self, number, color):
         self.bar[number] = color
+        dmx.set_rgb(number * self.par_offset + 1, color)
+        dmx.render()
 
     def get_element(self, number):
         return self.bar[number]
 
-    def set_all(self, colors):
+    def set_all(self, color):
         for i in self.bar:
-            self.bar[i] = colors
+            self.bar[i] = color
+            dmx.set_rgb(i * self.par_offset + 1, color)
+        dmx.render()
 
-    def set_all_at_level(self, colors):
+    def set_all_at_level(self, color):
         for i in self.bar:
             if i >= self.bar_level:
-                self.bar[i] = colors
+                self.bar[i] = color
+                dmx.set_rgb(i * self.par_offset + 1, color)
+        dmx.render()
 
     def set_random(self):
         for i in self.bar:
-            self.bar[i] = random.randint(1,3)
+            color = random.randint(1,3)
+            self.bar[i] = color
+            dmx.set_rgb(i * self.par_offset + 1, color)
+        dmx.render()
 
     def set_random_at_level(self):
         for i in self.bar:
             if i >= self.bar_level:
-                self.bar[i] = random.randint(1,3)
+                color = random.randint(1,3)
+                self.bar[i] = color
+                dmx.set_rgb(i * self.par_offset + 1, color)
+        dmx.render()
 
     def get_batch(self):
         self.sprites_bar = []
@@ -204,13 +256,19 @@ class Bar():
         self.sprites_bar.append(sprite)
         for i in self.bar:
             color = self.bar_grey
-            levelmarker = 0
+            #levelmarker = 0
+            if self.bar[i] == 0:
+                color = self.bar_grey
             if self.bar[i] == 1:
                 color = self.bar_red
             if self.bar[i] == 2:
                 color = self.bar_green
             if self.bar[i] == 3:
                 color = self.bar_blue
+            if self.bar[i] == 4:
+                color = self.bar_white
+            if self.bar[i] == 5:
+                color = self.bar_gold
             if i < self.bar_level:
                 sprite = pyglet.sprite.Sprite(self.bar_gold, batch=self.batch_bar,
                         x = self.x + (i % 2) * 50,
@@ -324,53 +382,71 @@ def on_key_press(symbol, modifiers):
         bar.set_element(1, 0)
     elif symbol == pyglet.window.key._5 or symbol == pyglet.window.key.NUM_5:
         print('INFO "5" key was pressed.')
-        p1.set_buttons(0, 1, 0)
+        p1.set_buttons(1, 2, 3)
+        p2.set_buttons(1, 2, 3)
+        p3.set_buttons(1, 2, 3)
+        bar.set_all(5)
     elif symbol == pyglet.window.key._6 or symbol == pyglet.window.key.NUM_6:
         print('INFO "6" key was pressed.')
-        p1.set_buttons(0, 2, 0)
+        p1.set_buttons(0, 0, 0)
+        p2.set_buttons(0, 0, 0)
+        p3.set_buttons(0, 0, 0)
+        bar.set_all(0)
+        #dmx.blackout()
+        #dmx.render()
     elif symbol == pyglet.window.key._7 or symbol == pyglet.window.key.NUM_7:
         print('INFO "7" key was pressed.')
-        p1.set_buttons(0, 3, 0)
+        p1.set_buttons(4, 4, 4)
+        p2.set_buttons(4, 4, 4)
+        p3.set_buttons(4, 4, 4)
+        bar.set_all(4)
     elif symbol == pyglet.window.key._8 or symbol == pyglet.window.key.NUM_8:
         print('INFO "8" key was pressed.')
-        p1.set_buttons(0, 0, 0)
+        p1.set_buttons(1, 1, 1)
+        p2.set_buttons(1, 1, 1)
+        p3.set_buttons(1, 1, 1)
+        bar.set_all(1)
+        #dmx.set_red(1)
+        #dmx.render()
     elif symbol == pyglet.window.key._9 or symbol == pyglet.window.key.NUM_9:
         print('INFO "9" key was pressed.')
-        p3.set_buttons(1, 2, 3)
-        animate_fall()
+        p1.set_buttons(2, 2, 2)
+        p2.set_buttons(2, 2, 2)
+        p3.set_buttons(2, 2, 2)
+        bar.set_all(2)
     elif symbol == pyglet.window.key._0 or symbol == pyglet.window.key.NUM_0:
         print('INFO "0" key was pressed.')
-        bar.set_all(random.randint(1,3))
+        p1.set_buttons(3, 3, 3)
+        p2.set_buttons(3, 3, 3)
+        p3.set_buttons(3, 3, 3)
+        bar.set_all(3)
     elif symbol == pyglet.window.key.S:
         print('INFO "S" key was pressed.')
         bar.set_game_state(0)
-        #udp.send(1, 1)
     elif symbol == pyglet.window.key.T:
         print('INFO "T" key was pressed.')
         bar.set_game_state(1)
-    elif symbol == pyglet.window.key.F:
-        print('INFO "F" key was pressed.')
-        bar.set_game_state(2)
-        wait_for_reactions();
-    elif symbol == pyglet.window.key.D:
-        print('INFO "D" key was pressed.')
-        bar.level_down()
     elif symbol == pyglet.window.key.R:
         print('INFO "R" key was pressed.')
-        set_random()
+        bar.set_game_state(2)
+    elif symbol == pyglet.window.key.F:
+        print('INFO "F" key was pressed.')
+        bar.set_game_state(3)
+    elif symbol == pyglet.window.key.U:
+        print('INFO "U" key was pressed.')
         bar.set_game_state(5)
+    elif symbol == pyglet.window.key.D:
+        print('INFO "D" key was pressed.')
+        bar.set_game_state(6)
     elif symbol == pyglet.window.key.W:
         print('INFO "W" key was pressed.')
-        bar.set_level(bar_elements)
+        bar.set_game_state(7)
     elif symbol == pyglet.window.key.E:
         print('INFO "E" key was pressed.')
         recieved_packets = udp.get_packets()
         for p in recieved_packets:
             print("udp packet at: %s from: %s contained: %s" \
                     % (p, recieved_packets[p][0], recieved_packets[p][1]))
-    elif symbol == pyglet.window.key.U:
-        print('INFO "U" key was pressed.')
-        bar.level_up()
     else:
         print('INFO %s key was pressed.' % str(symbol))
 
@@ -433,6 +509,10 @@ if __name__ == "__main__":
     #sound_win = pyglet.resource.media("tada.mp3")
     sound_win = pyglet.media.load("data/audio/tada.wav", streaming = False)
     """
+    ## init DMX
+    dmx = libs.dmx.DMX('/dev/ttyUSB0')
+    #dmx.set_white(1)
+    #dmx.render()
     ## create bar and players
     bar = Bar(bar_elements, 0, 10, 10)
     bar.set_random()

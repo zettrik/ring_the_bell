@@ -20,20 +20,14 @@ your time will shorten. Also some unforseen things might happen at any time.
 
 Will you reach the top and ring the bell?
 
-### Game States
-There is only a limited number of differnent states in the game. Test them in
-the prototype with the letters in the brackets.
-* [r] random blinking
-* [f] freeze, wait for reactions
-* [u] levelling up
-* [d] levelling down
-* [w] win / reaching top
-* [q] quit
 
-## Pyglet Prototype
+## Software
+
+### Pyglet Prototype
 There is a software prototype of the game for easier development, testing
 the rules and joy of gameplay.
 
+![Screenshot Prototype](prototype/screenshot.png)
 It uses pyglet as game engine. To use the prototype under Debian Linux run the following commands:
 ```
 cd prototype
@@ -42,20 +36,47 @@ pip3 install -r requirements.txt
 python3 prototype.py
 ```
 
-## Software
+### Game States
+There is only a limited number of differnent states in the game. Test them in
+the prototype with the letters in the brackets.
+* [s] start
+* [t] request gamepads to resync their time (ntp)
+* [r] random blinking
+* [f] freeze, wait for reactions
+* [e] release
+* [u] level up
+* [d] level down
+* [w] win
+* [q] quit
+
+
 ### Gamecontrolmaster
-* Raspeberry Pi with Debian Stretch
-  * install python3 + requirements
-  * ntp server - add this line to /etc/ntp.conf:
-    * restrict 172.16.2.0 mask 255.255.255.0 nomodify notrap
-  * open firewall ports:
-    * 123 for ntp
-    * 3333 for ingame udp server
-  * start prototype.py
-    * starts UDP server in separate thread
-    * shows game state on screen
-    * send UDP packets with game state
-    * recieves UDP packets with buttons states from pads
+Raspberry Pi with Raspbian (Debian Stretch)
+
+* You will need these essential Debian packages for gamemaster:
+  * `python3 ntp`
+  * Also install python3 from requirements.txt.
+* There is no standalone mode yet. Use the gamemaster headless via ssh, in addition with the following handy packages:
+  * `git` - to get the software
+  * `screen` - for disruptable ssh sessions
+  * `htop` - resource monitoring
+  * `mc` - commandline file manager
+  * `tcpdump` - debug network traffic
+  * `vim` - file editor
+* For all features install a dekstop like fluxbox
+  * `lightdm fluxbox lxterminal bbrun`
+
+#### Components
+* ntp server - add this line to /etc/ntp.conf:
+  * restrict 172.16.2.0 mask 255.255.255.0 nomodify notrap
+* open firewall ports:
+  * 123 for ntp
+  * 3333 for ingame udp server
+* start prototype.py
+  * starts UDP server in separate thread
+  * shows game state on screen
+  * send UDP packets with game state
+  * recieves UDP packets with buttons states from pads
 
 #### UDP Packets
 * modus can be:
@@ -68,6 +89,11 @@ python3 prototype.py
   * 6: Animation2
 
 ### Gamepads
+The Gamepads are self made and consist of a wifi enabled microcontroller
+(esp32), three buttons and three rgb LEDs (see Hardware). Adopt the .ino
+firmware file to your needs (like wifi password, IP addresses, etc.) and flash
+it to the esp32.
+
 * gamepad.ino
   * recieves time from local ntp server
   * recieves commands from gamecontrolmaster
@@ -76,63 +102,58 @@ python3 prototype.py
   * animates button colors
   * sends button states to master
 
+#### Flashing the Firmware
+Easiest way ist to use the Arduino IDE. Enhance it with the software from
+espressif to flash esp32 boards.
+
+* https://github.com/espressif/arduino-esp32
+
 #### UDP Packets
 * timestamp, button1, color, dt, button2, color, dt, button3, color, dt
  * dt means after how many ms button was last pressed in this second
  * e.g.: "1546727493, 1,1,0, 2,3,427, 3,1,755"
+* debug with any linux computer in the same wifi with: `sudo tcpdump -vvv -l -n port 3333`
 
-### RGB Light Bar
-* https://www.instructables.com/id/How-to-Use-an-RGB-LED/ - hue2rgb
+#### Gamepad States
+To lower complexity the gamepad software is written as a state machine. See
+https://www.norwegiancreations.com/2017/03/state-machines-and-arduino-implementation/
+for a quick introduction.
 
-#### Tri LED Show Bar DMX
-* https://www.thomann.de/de/stairville_show_bar_triled_18x3wb_stock.htm
-* https://www.ebay.de/itm/Showtec-Cameleon-Bar-12-3-IP65-LED-12x-3W-RGB-Light-DMX-Lichtleiste-Outdoor-/201976229900
-* https://www.ebay.de/itm/U-king-72W-10PCS-36LED-Par-RGB-Buhnenlicht-DMX-512-Disco-DJ-Wedding-Party-Lichts/292784228642?hash=item442b4cc922:g:irwAAOSwRNhbzr0r:rk:13:pf:0
-* https://www.ebay.de/itm/U-king-10STK-36W-Buhnenlicht-18LED-Par-RGB-Licht-7CH-Channel-Disco-Wedding-Party/292806135256?_trkparms=aid%3D444000%26algo%3DSOI.DEFAULT%26ao%3D1%26asc%3D20170221122447%26meid%3D339054517f2c4988a4da3474d06ac717%26pid%3D100752%26rk%3D3%26rkt%3D6%26sd%3D292784228642%26itm%3D292806135256&_trksid=p2047675.c100752.m1982
-* https://www.ebay.de/itm/10stk-RGBW-12LED-Par-Buhnenbeleuchtung-DMX512-Licht-Disco-Party-Lichteffekt-F2Y1/183417140600?_trkparms=aid%3D222007%26algo%3DSIM.MBE%26ao%3D1%26asc%3D52545%26meid%3D2c4fce730ffb4a258fd2ce8ef1319b32%26pid%3D100010%26rk%3D6%26rkt%3D12%26sd%3D292784228642%26itm%3D183417140600&_trksid=p2047675.c100010.m2109
-* https://www.ebay.de/itm/24x-3W-RGB-LED-Bar-Wall-Washer-8-Sektionen-DMX-Stage-Scheinwerfer-Lichtleiste/332858111664?epid=26014989146&hash=item4d7fe3b6b0:g:gCoAAOSwhZ5b1vIN:rk:10:pf:0
+* states:
+  * [1] random blinking
+  * [2] freeze
+  * [3] send udp packet
+  * [4] recieve udp packet
+  * [5] blink buttons pressed right in time
+  * [6] sync time
+* inputs:
+  * udp packets
+* outputs:
+  * LEDs
+  * udp packets
 
-* https://github.com/trevordavies095/DmxPy
-* https://www.openlighting.org/
-  * https://github.com/OpenLightingProject
-```
-apt install ola
-```
-* http://localhost:9090
-
-#### LED Stripes, Neopixel
-* https://dordnung.de/raspberrypi-ledstrip/ws2812
-* https://diystagedesign.wordpress.com/2014/06/06/rgb-led-strip-panels/
-
-#### DIY Power LED
-* 10x RGB 3W LED
-* I2C shield
-* 3.3V-5V level shifter: 74HCT245
-* Darlington ULN2003 with multi channel use or 3.3V n-channel mosfet
-* https://learn.adafruit.com/rgb-led-strips/usage
-* http://www.tbideas.com/blog/build-an-arduino-shield-to-drive-high-power-rgb-led/
 
 ## Hardware
 
 ### Schematics
 ![gamepad, buttons, leds](gamepad/gamepad_with_3_buttons_Steckplatine.png)
 
-* https://github.com/espressif/arduino-esp32
 * https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
 * https://github.com/troelssiggaard/ESP32-fritzing-module - ESP32 wroom Fritzing part
 
 ### Bill Of Material
 #### Gamecontrolmaster & Light Bar
-| Number | Name | Price |
-| ------ | ---- | ----- |
-| 1x | Pi3 with case, sd-card, power supply | 50€ |
-| 1x | Light Bar | 200€ |
-| 11x | comb from 6x wood (12mm x 12mm x 9mm)| 30€ |
-| 11x | milk glass as front plate for combs (24mm x 24mm) | 70€ |
-| 11x | wooden back plate for combs (24mm x 24mm) | 70€ |
-| | speaker | |
-| | car horn | |
-| | **sum** | **ca 250€** |
+Number | Name | Price
+------ | ---- | -----
+1x | Pi3 with case, sd-card, power supply | 50€
+1x | Light Bar | 200€
+11x | comb from 6x wood (12mm x 12mm x 9mm)| 30€
+11x | milk glass as front plate for combs (24mm x 24mm) | 70€
+11x | wooden back plate for combs (24mm x 24mm) | 70€
+1x | potentiometer for setting difficulty | 1€
+| speaker |
+| car horn |
+| **sum** | **ca 400€**
 
 #### Gamepads (each)
 | Number | Name | Price |
@@ -148,4 +169,56 @@ apt install ola
 | 3x | arcade buttons | 3,60€ |
 | 1x | comb from 6x wood (12mm x 12mm x 9mm)| 3€ |
 | | **sum** | **ca 30€** |
+
+----
+## RGB Light (in research)
+* https://www.instructables.com/id/How-to-Use-an-RGB-LED/ - hue2rgb
+
+### Tri LED Show Bar DMX
+Use standard hardware for theateres and clubs, allows better sacling and reuseable elements.
+
+* USB to DMX adapter
+  * Enttec Enttec Open DMX USB (70€)
+  * Enttec DMX USB Pro MK2, with Linux support (190€)
+* Light Bars (200-400€)
+  * https://www.thomann.de/de/stairville_show_bar_triled_18x3wb_stock.htm
+  * https://www.ebay.de/itm/Showtec-Cameleon-Bar-12-3-IP65-LED-12x-3W-RGB-Light-DMX-Lichtleiste-Outdoor-/201976229900
+  * https://www.ebay.de/itm/U-king-72W-10PCS-36LED-Par-RGB-Buhnenlicht-DMX-512-Disco-DJ-Wedding-Party-Lichts/292784228642?hash=item442b4cc922:g:irwAAOSwRNhbzr0r:rk:13:pf:0
+  * https://www.ebay.de/itm/U-king-10STK-36W-Buhnenlicht-18LED-Par-RGB-Licht-7CH-Channel-Disco-Wedding-Party/292806135256?_trkparms=aid%3D444000%26algo%3DSOI.DEFAULT%26ao%3D1%26asc%3D20170221122447%26meid%3D339054517f2c4988a4da3474d06ac717%26pid%3D100752%26rk%3D3%26rkt%3D6%26sd%3D292784228642%26itm%3D292806135256&_trksid=p2047675.c100752.m1982
+  * https://www.ebay.de/itm/10stk-RGBW-12LED-Par-Buhnenbeleuchtung-DMX512-Licht-Disco-Party-Lichteffekt-F2Y1/183417140600?_trkparms=aid%3D222007%26algo%3DSIM.MBE%26ao%3D1%26asc%3D52545%26meid%3D2c4fce730ffb4a258fd2ce8ef1319b32%26pid%3D100010%26rk%3D6%26rkt%3D12%26sd%3D292784228642%26itm%3D183417140600&_trksid=p2047675.c100010.m2109
+  * https://www.ebay.de/itm/24x-3W-RGB-LED-Bar-Wall-Washer-8-Sektionen-DMX-Stage-Scheinwerfer-Lichtleiste/332858111664?epid=26014989146&hash=item4d7fe3b6b0:g:gCoAAOSwhZ5b1vIN:rk:10:pf:0
+
+#### Enttec DMX USB Pro Mk2
+USB controller for DMX signals
+
+* After connection to your computer, the LED on the PRO Mk2 will start
+blinking white, notifying that it's powered up and ready.
+* https://github.com/trevordavies095/DmxPy - Control USB-DMX Hardware through Python 3. Works with Raspberry Pi, supports Enttec DMX USB Pro
+
+#### OLA
+* https://github.com/trevordavies095/DmxPy
+* https://www.openlighting.org/
+  * https://github.com/OpenLightingProject
+```
+apt install ola
+```
+* http://localhost:9090
+
+### DIY Power LED
+* 10x RGB 3W LED
+* I2C shield or multiplexer?
+* 3.3V-5V level shifter: 74HCT245
+* Darlington ULN2003A 
+  * 500mA per channel; multi channel possible
+  * or use 30x 3.3V n-channel mosfet
+* https://learn.adafruit.com/rgb-led-strips/usage
+* http://www.tbideas.com/blog/build-an-arduino-shield-to-drive-high-power-rgb-led/
+
+### LED Stripes, Neopixel
+Cut stripes in pieces and bring them in form for the combs. Control with
+mosfest or darlington + multiplexer (same as with power leds).
+
+* https://dordnung.de/raspberrypi-ledstrip/ws2812
+* https://diystagedesign.wordpress.com/2014/06/06/rgb-led-strip-panels/
+
 

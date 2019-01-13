@@ -60,12 +60,16 @@ class UDP_Server():
                 self.packets[time.time()] = (addr[0], str(data))
                 print("UDP packet from %s saying: %s " % (addr[0], str(data)))
 
+    def clear_packet_cache(self):
+        """ remove alle recieved packets from internal variable
+        """
+        self.packets = {}
+
     def get_packets(self):
-        """ return alle recieved packeds since last call and empty queue afterwards
+        """ return alle recieved packets since last call and empty queue afterwards
         """
         pckts = self.packets
-        ## empty local packet buffer
-        self.packets = {}
+        self.clear_packet_cache()
         return pckts
 
     def send(self, msg):
