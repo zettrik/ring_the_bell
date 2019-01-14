@@ -28,6 +28,7 @@ There is a software prototype of the game for easier development, testing
 the rules and joy of gameplay.
 
 ![Screenshot Prototype](prototype/screenshot.png)
+
 It uses pyglet as game engine. To use the prototype under Debian Linux run the following commands:
 ```
 cd prototype
@@ -103,7 +104,7 @@ it to the esp32.
   * sends button states to master
 
 #### Flashing the Firmware
-Easiest way ist to use the Arduino IDE. Enhance it with the software from
+Easiest way of flashing is by using the Arduino IDE. Enhance it with the software from
 espressif to flash esp32 boards.
 
 * https://github.com/espressif/arduino-esp32
@@ -187,6 +188,10 @@ Use standard hardware for theateres and clubs, allows better sacling and reuseab
   * https://www.ebay.de/itm/U-king-10STK-36W-Buhnenlicht-18LED-Par-RGB-Licht-7CH-Channel-Disco-Wedding-Party/292806135256?_trkparms=aid%3D444000%26algo%3DSOI.DEFAULT%26ao%3D1%26asc%3D20170221122447%26meid%3D339054517f2c4988a4da3474d06ac717%26pid%3D100752%26rk%3D3%26rkt%3D6%26sd%3D292784228642%26itm%3D292806135256&_trksid=p2047675.c100752.m1982
   * https://www.ebay.de/itm/10stk-RGBW-12LED-Par-Buhnenbeleuchtung-DMX512-Licht-Disco-Party-Lichteffekt-F2Y1/183417140600?_trkparms=aid%3D222007%26algo%3DSIM.MBE%26ao%3D1%26asc%3D52545%26meid%3D2c4fce730ffb4a258fd2ce8ef1319b32%26pid%3D100010%26rk%3D6%26rkt%3D12%26sd%3D292784228642%26itm%3D183417140600&_trksid=p2047675.c100010.m2109
   * https://www.ebay.de/itm/24x-3W-RGB-LED-Bar-Wall-Washer-8-Sektionen-DMX-Stage-Scheinwerfer-Lichtleiste/332858111664?epid=26014989146&hash=item4d7fe3b6b0:g:gCoAAOSwhZ5b1vIN:rk:10:pf:0
+* LED Par
+  * https://www.amazon.de/dp/B07D8MHP9J/ref=psdc_528377031_t1_B07J4TPDG2
+  * https://www.amazon.de/dp/B07G87HGR8/ref=psdc_528377031_t3_B07J4TPDG2
+  * https://www.amazon.de/Bühnenbeleuchtung-Latta-Alvor-Lichteffekte-Partybeleuchtung/dp/B07BN9SH4J/
 
 #### Enttec DMX USB Pro Mk2
 USB controller for DMX signals
@@ -194,8 +199,9 @@ USB controller for DMX signals
 * After connection to your computer, the LED on the PRO Mk2 will start
 blinking white, notifying that it's powered up and ready.
 * https://github.com/trevordavies095/DmxPy - Control USB-DMX Hardware through Python 3. Works with Raspberry Pi, supports Enttec DMX USB Pro
+  * is included in the prototype
 
-#### OLA
+#### Open Lighting Architecture (OLA)
 * https://github.com/trevordavies095/DmxPy
 * https://www.openlighting.org/
   * https://github.com/OpenLightingProject
