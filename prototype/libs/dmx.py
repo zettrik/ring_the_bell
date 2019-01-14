@@ -77,36 +77,42 @@ class DMX:
         self.setChannel(channel + 1, 0)
         self.setChannel(channel + 2, 0)
         self.setChannel(channel + 3, 0)
+        self.setChannel(channel + 4, 0)
 
     def set_red(self, channel):
+        self.setChannel(channel + 0, 255)
+        self.setChannel(channel + 1, 0)
+        self.setChannel(channel + 2, 0)
+        self.setChannel(channel + 3, 0)
+        self.setChannel(channel + 4, 0)
+
+    def set_green(self, channel):
         self.setChannel(channel + 0, 0)
         self.setChannel(channel + 1, 255)
         self.setChannel(channel + 2, 0)
         self.setChannel(channel + 3, 0)
-
-    def set_green(self, channel):
-        self.setChannel(channel + 0, 0)
-        self.setChannel(channel + 1, 0)
-        self.setChannel(channel + 2, 255)
-        self.setChannel(channel + 3, 0)
+        self.setChannel(channel + 4, 0)
 
     def set_blue(self, channel):
         self.setChannel(channel + 0, 0)
         self.setChannel(channel + 1, 0)
-        self.setChannel(channel + 2, 0)
-        self.setChannel(channel + 3, 255)
-
-    def set_white(self, channel):
-        self.setChannel(channel + 0, 0)
-        self.setChannel(channel + 1, 255)
-        self.setChannel(channel + 2, 255)
-        self.setChannel(channel + 3, 255)
-
-    def set_gold(self, channel):
-        self.setChannel(channel + 0, 0)
-        self.setChannel(channel + 1, 255)
         self.setChannel(channel + 2, 255)
         self.setChannel(channel + 3, 0)
+        self.setChannel(channel + 4, 0)
+
+    def set_white(self, channel):
+        self.setChannel(channel + 0, 255)
+        self.setChannel(channel + 1, 255)
+        self.setChannel(channel + 2, 255)
+        self.setChannel(channel + 3, 255)
+        self.setChannel(channel + 4, 0)
+
+    def set_gold(self, channel):
+        self.setChannel(channel + 0, 255)
+        self.setChannel(channel + 1, 255)
+        self.setChannel(channel + 2, 0)
+        self.setChannel(channel + 3, 0)
+        self.setChannel(channel + 4, 0)
 
     def render(self):
         sdata = b''.join(self.dmxData)
@@ -115,6 +121,14 @@ class DMX:
 if __name__ == "__main__":
     print("Testing RGB with DMX Controller.")
     dmx = DMX("/dev/ttyUSB0")
+    while True:
+        for i in range(0,5):
+            print(i)
+            dmx.setChannel(i, 255)
+            dmx.render()
+            time.sleep(1)
+            dmx.setChannel(i, 0)
+
     while True:
         dmx.set_black(1)
         dmx.render()

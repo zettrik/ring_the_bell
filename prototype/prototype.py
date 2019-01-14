@@ -171,7 +171,7 @@ class Bar():
         self.bar_level = 0
         self.bar_saved = {}
         self.bar = {}
-        self.par_offset = 7 ## number of channels per par
+        self.par_offset = 10 ## number of channels per par
         for i in range(0, elements):
             self.bar[i] = color
             dmx.set_rgb(i * self.par_offset + 1, color)

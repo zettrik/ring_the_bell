@@ -1,5 +1,5 @@
 # ring_the_bell
-schneller als wie hau den lukas
+*speedy bees*
 
 ## Game Principle
 ### Rules Of "Climb The Ladder"
@@ -144,32 +144,32 @@ for a quick introduction.
 
 ### Bill Of Material
 #### Gamecontrolmaster & Light Bar
-Number | Name | Price
+Number | Name | Sum
 ------ | ---- | -----
 1x | Pi3 with case, sd-card, power supply | 50€
-1x | Light Bar | 200€
-11x | comb from 6x wood (12mm x 12mm x 9mm)| 30€
+1x | RGB Light with DMX controller | ?€
+11x | combs from six pieces of wood (12mm x 12mm x 12mm)| 30€
 11x | milk glass as front plate for combs (24mm x 24mm) | 70€
-11x | wooden back plate for combs (24mm x 24mm) | 70€
+11x | wooden back plate for combs (24mm x 24mm) | 50€
 1x | potentiometer for setting difficulty | 1€
 | speaker |
 | car horn |
-| **sum** | **ca 400€**
+| **sum** | **200€ +?? **
 
 #### Gamepads (each)
-| Number | Name | Price |
-| ------ | ---- | ----- |
-| 1x | nodemcu | 7€ |
-| 1x | li-ion bms | 1€ |
-| 1x | 5V step up | 1,50€ |
-| 2x | battery holding for 18650 cell | 2€ |
-| 3x | rgb LED for buttons | 0,30€ |
-| 1x | green LED for on/off | 0,01€ |
-| 1x | blue LED for connection status | 0,01€ |
-| 1x | kippschalter | 1€ |
-| 3x | arcade buttons | 3,60€ |
-| 1x | comb from 6x wood (12mm x 12mm x 9mm)| 3€ |
-| | **sum** | **ca 30€** |
+Number | Name | Sum
+------ | ---- | -----
+1x | Espressif ESP32 (or similar board) | 7€
+1x | li-ion battery management system | 1€
+1x | 5V step up | 1,50€
+2x | battery holding for 18650 cell | 2€
+3x | RGB LED (common cathode) for buttons | 0,30€
+1x | green LED for on/off | 0,01€
+1x | blue LED for connection status | 0,01€
+1x | flip switch | 1€
+3x | arcade buttons | 3,60€
+1x | combs from six pieces of wood (12mm x 12mm x 9mm)| 3€
+| **sum** | **ca 20€**
 
 ----
 ## RGB Light (in research)
@@ -193,13 +193,15 @@ Use standard hardware for theateres and clubs, allows better sacling and reuseab
   * https://www.amazon.de/dp/B07G87HGR8/ref=psdc_528377031_t3_B07J4TPDG2
   * https://www.amazon.de/Bühnenbeleuchtung-Latta-Alvor-Lichteffekte-Partybeleuchtung/dp/B07BN9SH4J/
 
+* [Dip Switch Calculator](https://www.chauvetdj.com/chauvet-dj-dip-switch-calculator/)
+
 #### Enttec DMX USB Pro Mk2
 USB controller for DMX signals
 
-* After connection to your computer, the LED on the PRO Mk2 will start
-blinking white, notifying that it's powered up and ready.
-* https://github.com/trevordavies095/DmxPy - Control USB-DMX Hardware through Python 3. Works with Raspberry Pi, supports Enttec DMX USB Pro
+* After connection to your computer, the LED on the PRO Mk2 will start blinking white, notifying that it's powered up and ready.
+* [DmxPy](https://github.com/trevordavies095/DmxPy) - Control USB-DMX Hardware with Python 3. Works with Raspberry Pi and supports Enttec DMX USB Pro.
   * is included in the prototype
+
 
 #### Open Lighting Architecture (OLA)
 * https://github.com/trevordavies095/DmxPy
@@ -226,5 +228,7 @@ mosfest or darlington + multiplexer (same as with power leds).
 
 * https://dordnung.de/raspberrypi-ledstrip/ws2812
 * https://diystagedesign.wordpress.com/2014/06/06/rgb-led-strip-panels/
+* https://www.instructables.com/id/Driving-RGB-LED-strips-off-an-Arduino/
+* https://www.hackerspace-bamberg.de/Dmx2rgb
 
 
