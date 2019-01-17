@@ -68,6 +68,17 @@ Raspberry Pi with Raspbian (Debian Stretch)
   * `lightdm fluxbox lxterminal bbrun`
 
 #### Components
+* wifi in AP mode
+  * name: "speedy bees"
+  * password: "rockyoursocksoff"
+  * IP address: 172.16.2.2
+  * or set up a separate access point instead of the onboard chip
+    * switch wifi to client mode on Pi
+    * leave IP address of Rapsberry Pi: 172.16.2.2
+    * set IP address of access point: 172.16.2.1
+    * use same wifi name + credentials or recompile firmware for gamepads
+    * enable DHCP server on access point for address range: 172.16.2.3 - 172.16.2.254
+    * no internet connection or DNS is needed
 * ntp server - add this line to /etc/ntp.conf:
   * restrict 172.16.2.0 mask 255.255.255.0 nomodify notrap
 * open firewall ports:
@@ -96,12 +107,16 @@ firmware file to your needs (like wifi password, IP addresses, etc.) and flash
 it to the esp32.
 
 * gamepad.ino
+  * connects to wifi AP
   * recieves time from local ntp server
   * recieves commands from gamecontrolmaster
     * game states
     * ntp resync
   * animates button colors
   * sends button states to master
+
+Remember you have to recompile the firmware and flash it again on all gamepads after making
+changes to your wifi or network setup.
 
 #### Flashing the Firmware
 Easiest way of flashing is by using the Arduino IDE. Enhance it with the software from
@@ -141,13 +156,22 @@ for a quick introduction.
 ----
 ## Hardware
 
+Gamecontrolmaster and Gamepads
 ### Gamecontrolmaster
 Setup: Raspberry Pi <-- USB --> USB DMX controller <-- DMX --> RGB Lights
 
 ### Gamepad Schematics
-Shows, how the buttons, LEDs and ESP32 are connected.
+Setup: BMS <--> Li-Ion battery 4.2V <--> 5V step up <--> ESP32 dev board <--> 3.3V buttons & LEDs
+
+There are 2 Batteries in parallel with 2.200mAh each. The Gamepads uses between
+70mA and 200mA. So you should be able to play at least 24h. 8) Recharge via USB
+or change the cells. You find many of them in old notebook batteries.
+
+ESP32 Pinmap:
 
 ![ESP32 Pinmap](gamepad/esp32_pinmap.png)
+
+Wiring of buttons and LEDs to the ESP32:
 
 ![gamepad, buttons, leds](gamepad/gamepad_with_3_buttons_Steckplatine.png)
 
@@ -184,13 +208,19 @@ Number | Name | Sum
 | car horn |
 | **sum** | **ca. 350€**
 
-#### Gamepads (each)
+#### Gamepads
+These are the parts for one gamepad. The gamedesign is optimised for three
+players. But you can easily connect more. The limiting factor will be the
+number of wifi connections handled by the Pi. In case you're planning with some
+dozens gamepads better use a separated wifi access point.
+
 Number | Name | Sum
 ------ | ---- | -----
 1x | Espressif ESP32 (or similar board) | 7€
-1x | li-ion battery management system | 1€
+1x | li-ion battery management system (BMS) | 1€
 1x | 5V step up | 1,50€
-2x | battery holding for 18650 cell | 2€
+1x | battery holding for two 18650 cells (parallel) | 2€
+2x | batteries 18650 li-ion (from old notebook) | 0€
 1x | flip switch | 1€
 3x | arcade buttons | 3,60€
 3x | RGB LED (common cathode) for buttons | 0,30€
@@ -198,7 +228,7 @@ Number | Name | Sum
 3x | 10 Ohm resistor | 0,01€
 3x | 22 kOhm resistor | 0,01€
 1x | combs from six pieces of wood (12mm x 12mm x 9mm)| 3€
-| **sum** | **ca 20€**
+| **sum** | **ca 20€ (each)**
 
 ----
 ## RGB Light

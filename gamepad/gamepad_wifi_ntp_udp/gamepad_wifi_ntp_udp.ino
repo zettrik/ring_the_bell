@@ -9,8 +9,8 @@ const char *my_name = "uno";
 const int gamepad_version = 1;
 
 /* wifi */
-const char *ssid = "***";
-const char *password = "***";
+const char *ssid = "speedy bees";
+const char *password = "rockyoursocksoff";
 IPAddress local_ip(127, 0, 0, 0); // will be set via dhcp
 WiFiClient espClient;
 unsigned long wifi_connects = 0;
