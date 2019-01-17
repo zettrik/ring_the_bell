@@ -141,10 +141,13 @@ for a quick introduction.
 ----
 ## Hardware
 
+### Gamecontrolmaster
+Setup: Raspberry Pi <-- USB --> USB DMX controller <-- DMX --> RGB Lights
+
 ### Gamepad Schematics
 Shows, how the buttons, LEDs and ESP32 are connected.
 
-![ESP32 Pinmap](gampad/esp32_pinmap.png)
+![ESP32 Pinmap](gamepad/esp32_pinmap.png)
 
 ![gamepad, buttons, leds](gamepad/gamepad_with_3_buttons_Steckplatine.png)
 
@@ -153,18 +156,33 @@ Shows, how the buttons, LEDs and ESP32 are connected.
 
 
 ### Bill Of Material
-#### Gamecontrolmaster & Light Bar
+All electronic parts are easy to find in online shops (therefroe no links).
+
+The wood was bought as a big board and cut in pieces with a handsaw.
+
+Costs for the lights are high because of professional equipment (the cheapest)
+with DMX. That way all components are also usable for other light
+installations. You can save a lot of money building the lights yourself (see
+DIY RGB LEDs below).
+
+#### Gamecontrolmaster 
 Number | Name | Sum
 ------ | ---- | -----
-1x | Pi3 with case, sd-card, power supply | 50€
-1x | RGB Light with DMX controller | ?€
+1x | Pi3 with case, sd-card and power supply | 50€
+1x | Enttec Open DMX USB | 70€
+| **sum** | **ca. 120€**
+
+#### Light Bar
+Number | Name | Sum
+------ | ---- | -----
+1x | RGB Light with DMX controller | 200€
 11x | combs from six pieces of wood (12mm x 12mm x 12mm)| 30€
 11x | milk glass as front plate for combs (24mm x 24mm) | 70€
 11x | wooden back plate for combs (24mm x 24mm) | 50€
 1x | potentiometer for setting difficulty | 1€
 | speaker |
 | car horn |
-| **sum** | **200€ +?? **
+| **sum** | **ca. 350€**
 
 #### Gamepads (each)
 Number | Name | Sum
@@ -183,11 +201,10 @@ Number | Name | Sum
 | **sum** | **ca 20€**
 
 ----
-## RGB Light (in research)
-* https://www.instructables.com/id/How-to-Use-an-RGB-LED/ - hue2rgb
+## RGB Light
 
 ### Tri LED Show Bar DMX
-Use standard hardware for theateres and clubs, allows better sacling and reuseable elements.
+Use standard hardware for theaters and clubs, allows better scaling and reuseable elements.
 
 * USB to DMX adapter
   * Enttec Enttec Open DMX USB (70€)
@@ -207,39 +224,33 @@ Use standard hardware for theateres and clubs, allows better sacling and reuseab
 * [Dip Switch Calculator](https://www.chauvetdj.com/chauvet-dj-dip-switch-calculator/)
 
 #### Enttec DMX USB Pro Mk2
-USB controller for DMX signals
+You a need an USB controller for sending DMX signals to the lights.
 
 * After connection to your computer, the LED on the PRO Mk2 will start blinking white, notifying that it's powered up and ready.
 * [DmxPy](https://github.com/trevordavies095/DmxPy) - Control USB-DMX Hardware with Python 3. Works with Raspberry Pi and supports Enttec DMX USB Pro.
   * is included in the prototype
-
-
-#### Open Lighting Architecture (OLA)
-* https://github.com/trevordavies095/DmxPy
-* https://www.openlighting.org/
-  * https://github.com/OpenLightingProject
-```
-apt install ola
-```
-* http://localhost:9090
+* [Open Lighting Architecture](https://www.openlighting.org/) - take a look if you're thinking bigger
 
 ### DIY Power LED
+This is way cheaper than DMX Hardware. You basically need some power LEDs and a
+multiplexer. You won't need DMX but will have fun with you own protocol.
+
 * 10x RGB 3W LED
-* I2C shield or multiplexer?
-* 3.3V-5V level shifter: 74HCT245
-* Darlington ULN2003A 
+* 3.3V multiplexer 
+ * for arduino a 5V would do it: 74HCT245
+* some Darlington ULN2003A 
   * 500mA per channel; multi channel possible
   * or use 30x 3.3V n-channel mosfet
+
 * https://learn.adafruit.com/rgb-led-strips/usage
 * http://www.tbideas.com/blog/build-an-arduino-shield-to-drive-high-power-rgb-led/
 
-### LED Stripes, Neopixel
+### DIY LED Stripes, Neopixel
 Cut stripes in pieces and bring them in form for the combs. Control with
-mosfest or darlington + multiplexer (same as with power leds).
+mosfets or darlington + multiplexer (same as with power LEDs).
 
 * https://dordnung.de/raspberrypi-ledstrip/ws2812
 * https://diystagedesign.wordpress.com/2014/06/06/rgb-led-strip-panels/
 * https://www.instructables.com/id/Driving-RGB-LED-strips-off-an-Arduino/
 * https://www.hackerspace-bamberg.de/Dmx2rgb
-
 
