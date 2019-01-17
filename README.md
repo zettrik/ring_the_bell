@@ -107,7 +107,12 @@ it to the esp32.
 Easiest way of flashing is by using the Arduino IDE. Enhance it with the software from
 espressif to flash esp32 boards.
 
-* https://github.com/espressif/arduino-esp32
+* Install the current upstream Arduino IDE at the 1.8 level or later. The current version is at the [Arduino website](http://www.arduino.cc/en/main/software).
+* Start Arduino and open Preferences window.
+* Enter ```https://dl.espressif.com/dl/package_esp32_index.json``` into *Additional Board Manager URLs* field. You can add multiple URLs, separating them with commas.
+* Open Boards Manager from Tools > Board menu and install *esp32* platform (and don't forget to select your ESP32 board from Tools > Board menu after installation).
+
+* [Espressif Esp32 @ github](https://github.com/espressif/arduino-esp32)
 
 #### UDP Packets
 * timestamp, button1, color, dt, button2, color, dt, button3, color, dt
@@ -133,14 +138,19 @@ for a quick introduction.
   * LEDs
   * udp packets
 
-
+----
 ## Hardware
 
-### Schematics
+### Gamepad Schematics
+Shows, how the buttons, LEDs and ESP32 are connected.
+
+![ESP32 Pinmap](gampad/esp32_pinmap.png)
+
 ![gamepad, buttons, leds](gamepad/gamepad_with_3_buttons_Steckplatine.png)
 
 * https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
 * https://github.com/troelssiggaard/ESP32-fritzing-module - ESP32 wroom Fritzing part
+
 
 ### Bill Of Material
 #### Gamecontrolmaster & Light Bar
@@ -163,11 +173,12 @@ Number | Name | Sum
 1x | li-ion battery management system | 1€
 1x | 5V step up | 1,50€
 2x | battery holding for 18650 cell | 2€
-3x | RGB LED (common cathode) for buttons | 0,30€
-1x | green LED for on/off | 0,01€
-1x | blue LED for connection status | 0,01€
 1x | flip switch | 1€
 3x | arcade buttons | 3,60€
+3x | RGB LED (common cathode) for buttons | 0,30€
+6x | 47 Ohm resistor | 0,01€
+3x | 10 Ohm resistor | 0,01€
+3x | 22 kOhm resistor | 0,01€
 1x | combs from six pieces of wood (12mm x 12mm x 9mm)| 3€
 | **sum** | **ca 20€**
 

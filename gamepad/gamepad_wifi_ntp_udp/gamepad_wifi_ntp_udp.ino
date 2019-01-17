@@ -25,15 +25,15 @@ char msg[15];
 
 /* I/O */
 const byte led0 = 5; // on board LED
-const byte led_1_r = 32; // red LED on first button
-const byte led_1_g = 33;
-const byte led_1_b = 25;
-const byte led_2_r = 26;
-const byte led_2_g = 27;
-const byte led_2_b = 14;
-const byte led_3_r = 12;
-const byte led_3_g = 13;
-const byte led_3_b = 15;
+const byte led_1_r = 32; // G32, red LED on first button
+const byte led_1_g = 33; // G23
+const byte led_1_b = 25; // G25
+const byte led_2_r = 26; // G26
+const byte led_2_g = 27; // G27
+const byte led_2_b = 14; // G14
+const byte led_3_r = 12; // G12
+const byte led_3_g = 13; // G13
+const byte led_3_b = 4;  // G4, blue LED on third button
 const byte button1 = 36; // first input button
 const byte button2 = 39;
 const byte button3 = 34;
@@ -60,6 +60,10 @@ unsigned long time_delta;
 unsigned long ntp_last_check;
 time_t unixseconds;
 
+/* buttons leds */
+//long random;
+
+
 void setup() {
     Serial.begin(115200);
     Serial.println("===");
@@ -69,6 +73,7 @@ void setup() {
     Serial.println(gamepad_version);
     Serial.println("---");
     pinMode(led0, OUTPUT);
+    digitalWrite(led0, 0);
     pinMode(led_1_r, OUTPUT);
     pinMode(led_1_g, OUTPUT);
     pinMode(led_1_b, OUTPUT);
@@ -82,20 +87,32 @@ void setup() {
     pinMode(button3, INPUT_PULLDOWN);
     pinMode(button2, INPUT_PULLDOWN);
     
+    // initialize random number generator
+    randomSeed(analogRead(0));
+
+    // system starting, blue leds
+    buttons_all_blue();
     setup_wifi();
     setup_udp_listener();
     udp.broadcastTo("Hello my name is Uno running v1!", server_port);
     get_ntp_time();
+    // let all button leds blink so gamer sees everything is working
+    buttons_rotation();
+    buttons_single_color();
+    buttons_flash();
+    // system is up, green leds for 3 sec
+    buttons_all_green();
+    delay(3000);
 }
 
 void loop() {
-  digitalWrite(led0, 0);
   now = system_get_time();
   read_buttons();
   if ((before + send_interval) <= now) {
     send_states();
     before = now;
   }
+
   //test_reaction();
 }
 
@@ -259,5 +276,85 @@ void print_local_time() {
   }
   Serial.print("local time: ");
   Serial.println(&timeinfo, "%Y-%m-%d %H:%M:%S");
+}
+
+/*
+ * buttons blinking in action
+ */
+void buttons_rotation() {
+  for (int i = 0; i <= 4; i++) {
+    set_buttons(1,0,0,0,1,0,0,0,1);
+    delay(333);
+    set_buttons(0,1,0,0,0,1,1,0,0);
+    delay(333);
+    set_buttons(0,0,1,1,0,0,0,1,0);
+    delay(333);
+  }
+  set_buttons(0,0,0,0,0,0,0,0,0);
+}
+
+void buttons_single_color() {
+  for (int i = 0; i <= 4; i++) {
+    buttons_all_red();
+    delay(333);
+    buttons_all_off();
+    delay(100);
+    buttons_all_green();
+    delay(333);
+    buttons_all_off();
+    delay(100);
+    buttons_all_blue();
+    delay(333);
+    buttons_all_off();
+    delay(100);
+  }
+}
+
+
+void buttons_all_red() {
+  set_buttons(1,0,0,1,0,0,1,0,0);
+}
+
+void buttons_all_green() {
+  set_buttons(0,1,0,0,1,0,0,1,0); 
+}
+
+void buttons_all_blue() {
+  set_buttons(0,0,1,0,0,1,0,0,1);
+}
+
+void buttons_all_off() {
+  set_buttons(0,0,0,0,0,0,0,0,0);
+}
+
+void buttons_all_on() {
+  set_buttons(1,1,1,1,1,1,1,1,1);
+}
+
+void buttons_flash() {
+  for (int i = 0; i <= 8; i++) {
+    buttons_all_on();
+    delay(150);
+    buttons_all_off();
+    delay(150);
+  }
+}
+
+/*
+void button_random_rgb() {
+    rand = random(1, 3);
+}
+*/
+
+void set_buttons(int l1r, int l1g, int l1b, int l2r, int l2g, int l2b, int l3r, int l3g, int l3b){
+    digitalWrite(led_1_r, l1r);
+    digitalWrite(led_1_g, l1g);
+    digitalWrite(led_1_b, l1b);
+    digitalWrite(led_2_r, l2r);
+    digitalWrite(led_2_g, l2g);
+    digitalWrite(led_2_b, l2b);
+    digitalWrite(led_3_r, l3r);
+    digitalWrite(led_3_g, l3g);
+    digitalWrite(led_3_b, l3b);
 }
 
