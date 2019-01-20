@@ -9,14 +9,14 @@ const char *my_name = "uno";
 const int gamepad_version = 1;
 
 /* wifi */
-const char *ssid = "speedy bees";
+const char *ssid = "speedybees";
 const char *password = "rockyoursocksoff";
 IPAddress local_ip(127, 0, 0, 0); // will be set via dhcp
 WiFiClient espClient;
 unsigned long wifi_connects = 0;
 
 /* udp */
-IPAddress server_ip(172, 16, 2, 232);
+IPAddress server_ip(172, 16, 2, 2);
 const int server_port = 3333;
 const unsigned long send_interval = 1000000; // 1s
 AsyncUDP udp;
@@ -49,7 +49,7 @@ unsigned long button3_presstime = 0;
 
 /* ntp */
 //const char *ntpServer = "1.debian.pool.ntp.org";
-const char *ntpServer = "172.16.2.232";
+const char *ntpServer = "172.16.2.2";
 const unsigned long check_ntp_interval = 36000000;
 const long  gmtOffset_sec = 3600;
 const int   daylightOffset_sec = 3600;
@@ -103,6 +103,7 @@ void setup() {
     // system is up, green leds for 3 sec
     buttons_all_green();
     delay(3000);
+    buttons_all_off();
 }
 
 void loop() {
@@ -114,6 +115,7 @@ void loop() {
   }
 
   //test_reaction();
+  buttons_rotation();
 }
 
 /*
@@ -285,10 +287,16 @@ void buttons_rotation() {
   for (int i = 0; i <= 4; i++) {
     set_buttons(1,0,0,0,1,0,0,0,1);
     delay(333);
+    buttons_all_off();
+    delay(50);
     set_buttons(0,1,0,0,0,1,1,0,0);
     delay(333);
+    buttons_all_off();
+    delay(50);
     set_buttons(0,0,1,1,0,0,0,1,0);
     delay(333);
+    buttons_all_off();
+    delay(50);
   }
   set_buttons(0,0,0,0,0,0,0,0,0);
 }

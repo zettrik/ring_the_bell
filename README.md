@@ -69,7 +69,8 @@ Raspberry Pi with Raspbian (Debian Stretch)
 
 #### Components
 * wifi in AP mode
-  * name: "speedy bees"
+  * [Raspberry Pi help on this](https://www.raspberrypi.org/documentation/configuration/wireless/access-point.md)
+  * name: "speedybees"
   * password: "rockyoursocksoff"
   * IP address: 172.16.2.2
   * or set up a separate access point instead of the onboard chip
@@ -78,7 +79,7 @@ Raspberry Pi with Raspbian (Debian Stretch)
     * set IP address of access point: 172.16.2.1
     * use same wifi name + credentials or recompile firmware for gamepads
     * enable DHCP server on access point for address range: 172.16.2.3 - 172.16.2.254
-    * no internet connection or DNS is needed
+    * no internet connection or DNS is needed but it will nat an existing one
 * ntp server - add this line to /etc/ntp.conf:
   * restrict 172.16.2.0 mask 255.255.255.0 nomodify notrap
 * open firewall ports:
@@ -89,6 +90,12 @@ Raspberry Pi with Raspbian (Debian Stretch)
   * shows game state on screen
   * send UDP packets with game state
   * recieves UDP packets with buttons states from pads
+* debugging
+  * take a look at /var/log/daemon.log for connected gamepads (and other clients)
+  * see ntp requests (changed timestamps) with: tcpdump -i wlan0 -v -n port 123
+  * see udp packets (transmitted game signals) with: tcpdump -i wlan0 -n port 3333
+   * -tt for unix timestamp
+   * -X for ASCII content of packets
 
 #### UDP Packets
 * modus can be:
@@ -239,6 +246,7 @@ Use standard hardware for theaters and clubs, allows better scaling and reuseabl
 * USB to DMX adapter
   * Enttec Enttec Open DMX USB (70€)
   * Enttec DMX USB Pro MK2, with Linux support (190€)
+  * self made adapters: [search e.g. on easyeda.com](https://easyeda.com/search?wd=usb%20dmx)
 * Light Bars (200-400€)
   * https://www.thomann.de/de/stairville_show_bar_triled_18x3wb_stock.htm
   * https://www.ebay.de/itm/Showtec-Cameleon-Bar-12-3-IP65-LED-12x-3W-RGB-Light-DMX-Lichtleiste-Outdoor-/201976229900
