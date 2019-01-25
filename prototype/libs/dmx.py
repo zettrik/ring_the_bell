@@ -121,13 +121,19 @@ class DMX:
 if __name__ == "__main__":
     print("Testing RGB with DMX Controller.")
     dmx = DMX("/dev/ttyUSB0")
+    lights = { 1: [255,0,0], 11: [0,255,0], 21:[0,255,0] }
+
     while True:
-        for i in range(0,5):
-            print(i)
-            dmx.setChannel(i, 255)
-            dmx.render()
-            time.sleep(1)
-            dmx.setChannel(i, 0)
+        for channel in range(1, 4):
+            for par in range(0, 3):
+                dmx_no = int(channel + par * 10)
+                print("channel, par, dmx: %s, %s, %s" % (channel, par, dmx_no))
+                # repeat 10x because of strange losses in usb-dmx converter
+                for i in range(0, 10):
+                    dmx.setChannel(dmx_no, 255)
+                    dmx.render()
+                time.sleep(0.5)
+                dmx.setChannel(dmx_no, 0)
 
     while True:
         dmx.set_black(1)
