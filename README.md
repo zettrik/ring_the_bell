@@ -29,10 +29,12 @@ the rules and joy of gameplay.
 
 ![Screenshot Prototype](prototype/screenshot.png)
 
-It uses pyglet as game engine. To use the prototype under Debian Linux run the following commands:
+It uses pyglet as game engine. Most software the protoype depends on is in the
+Debian Linux distribution. The newest version of pyglet comes via pip. Install
+with the following commands.
 ```
 cd prototype
-apt install python3-pip
+apt install python3-pip freeglut3-dev python3-serial
 pip3 install -r requirements.txt
 python3 prototype.py
 ```
@@ -85,17 +87,26 @@ Raspberry Pi with Raspbian (Debian Stretch)
 * open firewall ports:
   * 123 for ntp
   * 3333 for ingame udp server
+* allow non-root users access to the USB interface:
+  * adduser <your_pi_user> dialout
 * start prototype.py
   * starts UDP server in separate thread
   * shows game state on screen
   * send UDP packets with game state
   * recieves UDP packets with buttons states from pads
-* debugging
-  * take a look at /var/log/daemon.log for connected gamepads (and other clients)
-  * see ntp requests (changed timestamps) with: tcpdump -i wlan0 -v -n port 123
-  * see udp packets (transmitted game signals) with: tcpdump -i wlan0 -n port 3333
-   * -tt for unix timestamp
-   * -X for ASCII content of packets
+
+In case you're building this setup the first time or you have trouble wit hsome
+components here are some debugging hints:
+
+* take a look at /var/log/daemon.log for connected gamepads (and other clients)
+* see ntp requests (changed timestamps) with: tcpdump -i wlan0 -v -n port 123
+* see udp packets (transmitted game signals) with: tcpdump -i wlan0 -n port 3333
+  * -tt for unix timestamp
+  * -X for ASCII content of packets
+* test basic DMX signals with: python3 prototype/libs/dmx.py
+  * or: apt install ola
+  * and try ola_dmxmonitor and ola_dmxconsole
+
 
 #### UDP Packets
 * modus can be:
@@ -185,6 +196,21 @@ Wiring of buttons and LEDs to the ESP32:
 * https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
 * https://github.com/troelssiggaard/ESP32-fritzing-module - ESP32 wroom Fritzing part
 
+#### Open Hardware Power Supply
+There are cheap commercial available module used for the prototype. You could
+go the full open hardware path by replacing them. Here are some ideas:
+
+* li-ion battery management system
+  * https://easyeda.com/search?wd=li-ion%20bms
+  * https://github.com/stuartpittaway/diyBMS
+  * https://secondlifestorage.com/index.php
+  * https://www.youtube.com/watch?v=OdH3wYeFJ3M
+  * https://foxbms.org
+  * https://github.com/Teslafly/OpenBMS
+
+* 5V step up boost module
+  * https://chioszrobots.com/2013/10/11/dc-dc-1a-3v-to-5v-converter-step-up-boost-module/
+  * https://easyeda.com/oshw/Arduino_Pro_Mini_328_5V_16MHz_Open_hardware-PuigQOLlx
 
 ### Bill Of Material
 All electronic parts are easy to find in online shops (therefroe no links).
@@ -225,7 +251,7 @@ Number | Name | Sum
 ------ | ---- | -----
 1x | Espressif ESP32 (or similar board) | 7€
 1x | li-ion battery management system (BMS) | 1€
-1x | 5V step up | 1,50€
+1x | 5V step up boost module | 1,50€
 1x | battery holding for two 18650 cells (parallel) | 2€
 2x | batteries 18650 li-ion (from old notebook) | 0€
 1x | flip switch | 1€
@@ -245,6 +271,7 @@ Use standard hardware for theaters and clubs, allows better scaling and reuseabl
 
 * USB to DMX adapter
   * Enttec Enttec Open DMX USB (70€)
+    * basic USB to DMX converter, lacks microprocessor control, will hiccup if your computer gets stuck
   * Enttec DMX USB Pro MK2, with Linux support (190€)
   * self made adapters: [search e.g. on easyeda.com](https://easyeda.com/search?wd=usb%20dmx)
 * Light Bars (200-400€)
@@ -264,10 +291,18 @@ Use standard hardware for theaters and clubs, allows better scaling and reuseabl
 #### Enttec DMX USB Pro Mk2
 You a need an USB controller for sending DMX signals to the lights.
 
-* After connection to your computer, the LED on the PRO Mk2 will start blinking white, notifying that it's powered up and ready.
+* PRO Mk2 comes with a RGB LED indicator located on the top (above the usb connector). The LED will blink between these colours, and each colour signifies the related activity:
+  * white: PRO Mk2 is powered on and idle
+  * green: DMX1 send or receive (DMX Port 1)
+  * yellow: DMX2 send or receive (DMX Port 2)
+  * blue: standalone mode (show playback)
+  * purple: MIDI in or out
+  * red: error or unsupported request
 * [DmxPy](https://github.com/trevordavies095/DmxPy) - Control USB-DMX Hardware with Python 3. Works with Raspberry Pi and supports Enttec DMX USB Pro.
   * is included in the prototype
 * [Open Lighting Architecture](https://www.openlighting.org/) - take a look if you're thinking bigger
+* http://www.raspberrypi-dmx.org
+* http://www.lightingandsoundamerica.com/mailing/PLASAProtocol/PSummer2015_BuildYourOwnDMXTester.pdf
 
 ### DIY Power LED
 This is way cheaper than DMX Hardware. You basically need some power LEDs and a

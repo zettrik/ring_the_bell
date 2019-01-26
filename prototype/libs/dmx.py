@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Thanks to DAve Paul for DMXPy and Trevor Davies who ported it to Python3.
+Thanks to Dave Paul for DMXPy and Trevor Davies who ported it to Python3.
 
 * https://github.com/davepaul0/DmxPy
 * https://github.com/trevordavies095/DmxPy
@@ -121,19 +121,61 @@ class DMX:
 if __name__ == "__main__":
     print("Testing RGB with DMX Controller.")
     dmx = DMX("/dev/ttyUSB0")
-    lights = { 1: [255,0,0], 11: [0,255,0], 21:[0,255,0] }
+    lights = { 1: [255,0,0,0], 11: [0,255,0,0], 21:[0,255,0,0] }
+    print(lights.keys())
+    print(lights[1])
+    print(lights[1][0])
 
+    for light in lights.keys():
+        for channel in range(0, len(lights[light])):
+            dmx_address = int(light + channel)
+            dmx.setChannel(dmx_address, lights[light][channel])
+    dmx.render()
+    time.sleep(2)
+    dmx.blackout()
+
+    lights = { 1: [0,255,0,0], 11: [0,0,255,0], 21:[255,0,0,0] }
+    for light in lights.keys():
+        for channel in range(0, len(lights[light])):
+            dmx_address = int(light + channel)
+            dmx.setChannel(dmx_address, lights[light][channel])
+    dmx.render()
+    time.sleep(2)
+    dmx.blackout()
+
+    lights = { 1: [0,0,255,0], 11: [255,0,0,0], 21:[0,255,0,0] }
+    for light in lights.keys():
+        for channel in range(0, len(lights[light])):
+            dmx_address = int(light + channel)
+            dmx.setChannel(dmx_address, lights[light][channel])
+    dmx.render()
+    time.sleep(2)
+    dmx.blackout()
+
+    lights = { 1: [0,0,0,0], 11: [0,0,0,0], 21:[0,0,0,0] }
+    for light in lights.keys():
+        for channel in range(0, len(lights[light])):
+            dmx_address = int(light + channel)
+            for brightness in range(0, 255):
+                dmx.setChannel(dmx_address, brightness)
+                dmx.render()
+                time.sleep(0.1)
+    dmx.blackout()
+
+
+    """
     while True:
-        for channel in range(1, 4):
-            for par in range(0, 3):
-                dmx_no = int(channel + par * 10)
-                print("channel, par, dmx: %s, %s, %s" % (channel, par, dmx_no))
-                # repeat 10x because of strange losses in usb-dmx converter
-                for i in range(0, 10):
-                    dmx.setChannel(dmx_no, 255)
-                    dmx.render()
+        for par in range(0, 3):
+            for channel in range(1, 4):
+                ## pars are using channels 1, 11, 21, ...
+                ## channels are 1 - red, 2 - green, 3 - blue, 4 - amber
+                dmx_address = int(par * 10 + channel)
+                print("par, channel, dmx: %s, %s, %s" % (par, channel,
+                            dmx_address))
+                dmx.setChannel(dmx_address, 255)
+                dmx.render()
                 time.sleep(0.5)
-                dmx.setChannel(dmx_no, 0)
+                dmx.setChannel(dmx_address, 0)
 
     while True:
         dmx.set_black(1)
@@ -151,4 +193,5 @@ if __name__ == "__main__":
         dmx.set_white(1)
         dmx.render()
         time.sleep(3)
+    """
 
