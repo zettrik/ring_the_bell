@@ -50,6 +50,8 @@ class DMX:
         self.serial.write(DMXOPEN + DMXINIT1 + DMXCLOSE)
         self.serial.write(DMXOPEN + DMXINIT2 + DMXCLOSE)
         self.dmxData = [bytes([0])] * 513   #128 plus "spacer".
+        self.blackout()
+        self.render()
 
 
     def setChannel(self, chan, intensity):
@@ -116,82 +118,46 @@ class DMX:
 
     def render(self):
         sdata = b''.join(self.dmxData)
-        self.serial.write(DMXOPEN + DMXINTENSITY + sdata + DMXCLOSE)
+        ## repeat serial.write - usb adapter works unreliable at the raspberry pi
+        for i in range(0, 3):
+            self.serial.write(DMXOPEN + DMXINTENSITY + sdata + DMXCLOSE)
+            time.sleep(0.05)
+
+    def rotate_rgb(self):
+        lights = {   1: [255,0,0,0], 11: [0,255,0,0], 21:[0,0,255,0],
+                    31: [255,0,0,0], 41: [0,255,0,0], 51:[0,0,255,0],
+                    61: [255,0,0,0], 71: [0,255,0,0], 81:[0,0,255,0],
+                    91: [255,0,0,0] }
+        self.set_lights(lights)
+        time.sleep(0.25)
+        lights = {   1: [0,255,0,0], 11: [0,0,255,0], 21:[255,0,0,0],
+                    31: [0,255,0,0], 41: [0,0,255,0], 51:[255,0,0,0],
+                    61: [0,255,0,0], 71: [0,0,255,0], 81:[255,0,0,0],
+                    91: [0,255,0,0] }
+        self.set_lights(lights)
+        time.sleep(0.25)
+        lights = {   1: [0,0,255,0], 11: [255,0,0,0], 21:[0,255,0,0],
+                    31: [0,0,255,0], 41: [255,0,0,0], 51:[0,255,0,0],
+                    61: [0,0,255,0], 71: [255,0,0,0], 81:[0,255,0,0],
+                    91: [0,0,255,0] }
+        self.set_lights(lights)
+        time.sleep(0.25)
+
+    def set_lights(self, lights):
+        print(lights.keys())
+        print(lights.values())
+        dmx.blackout()
+        for light in lights.keys():
+            for channel in range(0, len(lights[light])):
+                dmx_address = int(light + channel)
+                brightness = lights[light][channel]
+                dmx.setChannel(dmx_address, brightness)
+        dmx.render()
+
 
 if __name__ == "__main__":
     print("Testing RGB with DMX Controller.")
     dmx = DMX("/dev/ttyUSB0")
-    lights = { 1: [255,0,0,0], 11: [0,255,0,0], 21:[0,255,0,0] }
-    print(lights.keys())
-    print(lights[1])
-    print(lights[1][0])
-
-    for light in lights.keys():
-        for channel in range(0, len(lights[light])):
-            dmx_address = int(light + channel)
-            dmx.setChannel(dmx_address, lights[light][channel])
-    dmx.render()
-    time.sleep(2)
-    dmx.blackout()
-
-    lights = { 1: [0,255,0,0], 11: [0,0,255,0], 21:[255,0,0,0] }
-    for light in lights.keys():
-        for channel in range(0, len(lights[light])):
-            dmx_address = int(light + channel)
-            dmx.setChannel(dmx_address, lights[light][channel])
-    dmx.render()
-    time.sleep(2)
-    dmx.blackout()
-
-    lights = { 1: [0,0,255,0], 11: [255,0,0,0], 21:[0,255,0,0] }
-    for light in lights.keys():
-        for channel in range(0, len(lights[light])):
-            dmx_address = int(light + channel)
-            dmx.setChannel(dmx_address, lights[light][channel])
-    dmx.render()
-    time.sleep(2)
-    dmx.blackout()
-
-    lights = { 1: [0,0,0,0], 11: [0,0,0,0], 21:[0,0,0,0] }
-    for light in lights.keys():
-        for channel in range(0, len(lights[light])):
-            dmx_address = int(light + channel)
-            for brightness in range(0, 255):
-                dmx.setChannel(dmx_address, brightness)
-                dmx.render()
-                time.sleep(0.1)
-    dmx.blackout()
-
-
-    """
     while True:
-        for par in range(0, 3):
-            for channel in range(1, 4):
-                ## pars are using channels 1, 11, 21, ...
-                ## channels are 1 - red, 2 - green, 3 - blue, 4 - amber
-                dmx_address = int(par * 10 + channel)
-                print("par, channel, dmx: %s, %s, %s" % (par, channel,
-                            dmx_address))
-                dmx.setChannel(dmx_address, 255)
-                dmx.render()
-                time.sleep(0.5)
-                dmx.setChannel(dmx_address, 0)
-
-    while True:
-        dmx.set_black(1)
-        dmx.render()
-        time.sleep(1)
-        dmx.set_red(1)
-        dmx.render()
-        time.sleep(1)
-        dmx.set_green(1)
-        dmx.render()
-        time.sleep(1)
-        dmx.set_blue(1)
-        dmx.render()
-        time.sleep(1)
-        dmx.set_white(1)
-        dmx.render()
-        time.sleep(3)
-    """
+        dmx.rotate_rgb()
 
