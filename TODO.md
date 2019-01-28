@@ -1,5 +1,4 @@
 # TODOs
-* [ ] debug mysterious dmx behaviour
 * [ ] fix firmware errors
   * seems like this would help: https://github.com/espressif/arduino-esp32/issues/393
 * [ ] add low voltage protection or red warning led on gamepads
@@ -15,6 +14,9 @@
   * open hardware for own schematics (cern license?)
   * dmxpy MIT license
 * [ ] find cool audio samples
+* [x] debug mysterious dmx behaviour 
+ * Enttec USB DMX Pro Mk2 needs 300mA @ 5V supply
+ * Pi USB output seems to be not stable enough, also not with USB hub
 * [x] gamepad suggestions for open hardware BMS and 5V step up
 * [x] setup wifi in pi server
 * [x] clone git to pi server

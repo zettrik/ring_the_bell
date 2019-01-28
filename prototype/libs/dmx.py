@@ -118,10 +118,19 @@ class DMX:
 
     def render(self):
         sdata = b''.join(self.dmxData)
-        ## repeat serial.write - usb adapter works unreliable at the raspberry pi
-        for i in range(0, 3):
-            self.serial.write(DMXOPEN + DMXINTENSITY + sdata + DMXCLOSE)
-            time.sleep(0.05)
+        self.serial.write(DMXOPEN + DMXINTENSITY + sdata + DMXCLOSE)
+
+    def fade_in(self):
+        for i in range(0, 255, 3):
+            lights = {   1: [i,0,0,0], 11: [0,i,0,0], 21:[0,0,i,0]}
+            self.set_lights(lights)
+            time.sleep(0.01)
+
+    def fade_out(self):
+        for i in range(255, 0, -3):
+            lights = {   1: [i,0,0,0], 11: [0,i,0,0], 21:[0,0,i,0]}
+            self.set_lights(lights)
+            time.sleep(0.01)
 
     def rotate_rgb(self):
         lights = {   1: [255,0,0,0], 11: [0,255,0,0], 21:[0,0,255,0],
@@ -129,23 +138,23 @@ class DMX:
                     61: [255,0,0,0], 71: [0,255,0,0], 81:[0,0,255,0],
                     91: [255,0,0,0] }
         self.set_lights(lights)
-        time.sleep(0.25)
+        time.sleep(0.4)
         lights = {   1: [0,255,0,0], 11: [0,0,255,0], 21:[255,0,0,0],
                     31: [0,255,0,0], 41: [0,0,255,0], 51:[255,0,0,0],
                     61: [0,255,0,0], 71: [0,0,255,0], 81:[255,0,0,0],
                     91: [0,255,0,0] }
         self.set_lights(lights)
-        time.sleep(0.25)
+        time.sleep(0.4)
         lights = {   1: [0,0,255,0], 11: [255,0,0,0], 21:[0,255,0,0],
                     31: [0,0,255,0], 41: [255,0,0,0], 51:[0,255,0,0],
                     61: [0,0,255,0], 71: [255,0,0,0], 81:[0,255,0,0],
                     91: [0,0,255,0] }
         self.set_lights(lights)
-        time.sleep(0.25)
+        time.sleep(0.4)
 
     def set_lights(self, lights):
-        print(lights.keys())
-        print(lights.values())
+        #print(lights.keys())
+        #print(lights.values())
         dmx.blackout()
         for light in lights.keys():
             for channel in range(0, len(lights[light])):
@@ -159,5 +168,8 @@ if __name__ == "__main__":
     print("Testing RGB with DMX Controller.")
     dmx = DMX("/dev/ttyUSB0")
     while True:
-        dmx.rotate_rgb()
+        dmx.fade_in()
+        for i in range(3):
+            dmx.rotate_rgb()
+        dmx.fade_out()
 
