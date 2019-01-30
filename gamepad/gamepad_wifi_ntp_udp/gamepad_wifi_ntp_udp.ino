@@ -37,6 +37,7 @@ const byte led_3_b = 4;  // G4, blue LED on third button
 const byte button1 = 36; // first input button
 const byte button2 = 39;
 const byte button3 = 34;
+const byte bat_sensor = 2; // G2, connect to batterie (+)
 byte button1_state = 0;
 byte button2_state = 0;
 byte button3_state = 0;
@@ -86,6 +87,10 @@ void setup() {
     pinMode(button1, INPUT_PULLDOWN);
     pinMode(button3, INPUT_PULLDOWN);
     pinMode(button2, INPUT_PULLDOWN);
+    pinMode(bat_sensor, INPUT_PULLDOWN);
+
+    // shutdown on low battery
+    check_battery();    
     
     // initialize random number generator
     randomSeed(analogRead(0));
@@ -107,8 +112,10 @@ void setup() {
 }
 
 void loop() {
+  check_battery();
   now = system_get_time();
   read_buttons();
+  
   if ((before + send_interval) <= now) {
     send_states();
     before = now;
@@ -218,6 +225,17 @@ void setup_udp_listener() {
             */
         });
     }
+}
+
+/*
+ * low voltage shutdown
+ */
+void check_battery() { 
+  if (digitalRead(bat_sensor, 1) < 600) {
+    buttons_all_red();
+    delay(3000);
+    shutdown;
+  }
 }
 
 /*

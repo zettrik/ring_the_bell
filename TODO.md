@@ -11,9 +11,7 @@
   * open hardware for own schematics (cern license?)
   * dmxpy MIT license
 * [ ] find cool audio samples
-* [x] add low voltage disconnect and red warning LED on gamepads
-  * digispark/attiny85 to disconnect the esp32 when batteries run low
-  * LVD circuit itself will need about 10mA
+* [x] add low voltage disconnect and red warning on gamepads
 * [x] debug mysterious dmx behaviour 
  * Enttec USB DMX Pro Mk2 needs 300mA @ 5V supply
  * Pi USB output seems to be not stable enough, also not with USB hub
