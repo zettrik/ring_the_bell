@@ -187,7 +187,7 @@ void send_states() {
  * udp
  */
 void setup_udp_listener() {
-  if(udp.listen(server_port)) {
+    if(udp.listen(server_port)) {
         Serial.print("UDP Listening on: ");
         Serial.print(WiFi.localIP());
         Serial.print(":");

@@ -1,9 +1,6 @@
 # TODOs
 * [ ] fix firmware errors
   * seems like this would help: https://github.com/espressif/arduino-esp32/issues/393
-* [ ] add low voltage protection or red warning led on gamepads
-  * attiny85 for disconnecting the esp32 when batteries run low
-  * circuit itself will need about 10mA
 * [ ] build tough connections for leds and buttons in gamepad
 * [ ] define game states and implement
 * [ ] build wooden gamepad case (comb with 13mm edge length and 13mm depth)
@@ -14,6 +11,9 @@
   * open hardware for own schematics (cern license?)
   * dmxpy MIT license
 * [ ] find cool audio samples
+* [x] add low voltage disconnect and red warning LED on gamepads
+  * digispark/attiny85 to disconnect the esp32 when batteries run low
+  * LVD circuit itself will need about 10mA
 * [x] debug mysterious dmx behaviour 
  * Enttec USB DMX Pro Mk2 needs 300mA @ 5V supply
  * Pi USB output seems to be not stable enough, also not with USB hub

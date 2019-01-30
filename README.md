@@ -263,6 +263,10 @@ Number | Name | Sum
 1x | combs from six pieces of wood (12mm x 12mm x 9mm)| 3€
 | **sum** | **ca 20€ (each)**
 
+1x | digispark (low voltage disconnect) | 4€
+1x | mosfet + red LED | 1€
+| **sum for LVD** | **ca 5€ (each)**
+
 ----
 ## RGB Light
 
