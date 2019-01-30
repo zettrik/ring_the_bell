@@ -176,10 +176,10 @@ for a quick introduction.
 
 Gamecontrolmaster and Gamepads
 ### Gamecontrolmaster
-Setup: Raspberry Pi <-- USB --> USB DMX controller <-- DMX --> RGB Lights
+Setup: Raspberry Pi :arrow_left: USB :arrow_right: USB DMX controller :arrow_left: DMX :arrow_right: RGB Lights
 
 ### Gamepad Schematics
-Setup: BMS <--> Li-Ion battery 4.2V <--> 5V step up <--> ESP32 dev board <--> 3.3V buttons & LEDs
+Setup: BMS :left_right_arrow: Li-Ion battery 4.2V :left_right_arrow: 5V step up :left_right_arrow: ESP32 dev board :left_right_arrow: 3.3V buttons & LEDs
 
 There are 2 Batteries in parallel with 2.200mAh each. A Gamepad uses between 70mA and 200mA. So you should be able to play at least 24h. 8) 
 It will blink red and poweroff if battery voltage is below 3.4V. Recharge via USB or change the cells. You find many of them in old notebook batteries.
@@ -260,7 +260,7 @@ Number | Name | Sum
 3x | 10 Ohm resistor | 0,01€
 3x | 22 kOhm resistor | 0,01€
 1x | combs from six pieces of wood (12mm x 12mm x 9mm)| 3€
- | **sum** | **ca 20€ (each)**
+  | **sum** | **ca 20€ (each)**
 
 ----
 ## RGB Light
