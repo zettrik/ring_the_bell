@@ -171,29 +171,34 @@ for a quick introduction.
   * LEDs
   * udp packets
 
+![Gamepad flowchart](gamepad/gamepad_flowchart.png)
+
 ----
 ## Hardware
 
 Gamecontrolmaster and Gamepads
+
 ### Gamecontrolmaster
-Setup: Raspberry Pi :arrow_left: USB :arrow_right: USB DMX controller :arrow_left: DMX :arrow_right: RGB Lights
+Setup: power plug :arrow_left: USB :arrow_right: Raspberry Pi :arrow_left: USB :arrow_right: USB-DMX controller :arrow_left: XLR :arrow_right: RGB Lights
+
+The Master is simple USB plug and play. Lights are connected to each other and to the controller with XLR cable/plugs in series. [DMX Basics](http://www.lutron.com/en-US/education-training/Documents/dmx%20webinar_7-29-2010.pdf)
 
 ### Gamepad Schematics
-Setup: BMS :left_right_arrow: Li-Ion battery 4.2V :left_right_arrow: 5V step up :left_right_arrow: ESP32 dev board :left_right_arrow: 3.3V buttons & LEDs
+Setup: BMS :left_right_arrow: 2x Li-Ion battery 4.2V :left_right_arrow: 5V step up :left_right_arrow: ESP32 dev board :left_right_arrow: 3.3V buttons & LEDs
 
-There are 2 Batteries in parallel with 2.200mAh each. A Gamepad uses between 70mA and 200mA. So you should be able to play at least 24h. 8) 
-It will blink red and poweroff if battery voltage is below 3.4V. Recharge via USB or change the cells. You find many of them in old notebook batteries.
+Wiring of batteries, buttons and LEDs to the ESP32:
+
+![gamepad, buttons, leds](gamepad/gamepad_with_3_buttons_Steckplatine.png)
+
+Two batteries are used in parallel with 2.200mAh each. The Gamepad uses between 70mA and 200mA. So you should be able to play at least 24h. 8) 
+It will blink red and poweroff if battery voltage is below 3.4V. Recharge via USB, powerplug or change the cells. You find many of them in old notebook batteries.
 
 ESP32 Pinmap:
 
 ![ESP32 Pinmap](gamepad/esp32_pinmap.png)
 
-Wiring of buttons and LEDs to the ESP32:
-
-![gamepad, buttons, leds](gamepad/gamepad_with_3_buttons_Steckplatine.png)
-
-* https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
-* https://github.com/troelssiggaard/ESP32-fritzing-module - ESP32 wroom Fritzing part
+* [ESP32 Pin Reference](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/)
+* [ESP32 wroom Fritzing part](https://github.com/troelssiggaard/ESP32-fritzing-module)
 
 #### Open Hardware Power Supply
 There are cheap commercial available module used for the prototype. You could

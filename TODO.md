@@ -1,8 +1,9 @@
 # TODOs
+* [ ] define game states
+  * [ ] implement finite state machine
 * [ ] fix firmware errors
   * seems like this would help: https://github.com/espressif/arduino-esp32/issues/393
 * [ ] build tough connections for leds and buttons in gamepad
-* [ ] define game states and implement
 * [ ] build wooden gamepad case (comb with 13mm edge length and 13mm depth)
 * [ ] setup introduction page; move howto details in separate file
 * [ ] describe off-grid powered version for festivals (solar)
