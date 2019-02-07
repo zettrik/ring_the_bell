@@ -5,12 +5,12 @@
 * [ ] define game states and implement
 * [ ] build wooden gamepad case (comb with 13mm edge length and 13mm depth)
 * [ ] setup introduction page; move howto details in separate file
-* [ ] gamepad blockdiagram
 * [ ] describe off-grid powered version for festivals (solar)
 * [ ] check licenses
   * open hardware for own schematics (cern license?)
   * dmxpy MIT license
 * [ ] find cool audio samples
+* [x] gamepad blockdiagram
 * [x] add low voltage disconnect and red warning on gamepads
 * [x] debug mysterious dmx behaviour 
  * Enttec USB DMX Pro Mk2 needs 300mA @ 5V supply
