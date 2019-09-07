@@ -1,11 +1,18 @@
 # TODOs
+* [ ] test vue.js as frontend
+ * http://rafaelescala.com/vue-konva/#/
+ * with nuxt
 * [ ] define game states
   * [ ] implement finite state machine
 * [ ] fix firmware errors
   * seems like this would help: https://github.com/espressif/arduino-esp32/issues/393
 * [ ] try MQTT/TCP instead of plain UDP packets and see if performance fits
+  * WiFiClient client; WiFi.begin(ssid, password); client.print("foo");
+  * https://dzone.com/articles/playing-with-docker-mqtt-grafana-influxdb-python-a
 * [ ] build tough connections for leds and buttons in gamepad
-* [ ] build wooden gamepad case (comb with 13mm edge length and 13mm depth)
+* [x] build wooden gamepad case (comb with 13mm edge length and 13mm depth)
+* [ ] build wooden gamecontrolmaster case
+  * [ ] add coin slot and glass bucket
 * [ ] setup introduction page; move howto details in separate file
 * [ ] describe off-grid powered version for festivals (solar)
 * [ ] check licenses
@@ -13,6 +20,10 @@
   * dmxpy MIT license
   * schematic files sources ...
 * [ ] find cool audio samples
+ * http://99sounds.org/
+ * https://opengameart.org/
+ * http://dig.ccmixter.org/games
+ * https://freesound.org/browse/
 * [x] gamepad blockdiagram
 * [x] add low voltage disconnect and red warning on gamepads
 * [x] debug mysterious dmx behaviour 

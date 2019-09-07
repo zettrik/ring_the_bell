@@ -1,1 +1,2 @@
-pyglet==1.4.0a1
+pyglet
+#pyglet==1.4.0a1

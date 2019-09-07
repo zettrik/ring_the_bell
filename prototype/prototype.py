@@ -17,8 +17,9 @@ import time
 import libs.udp_server
 import libs.dmx
 
-screen_width = 640
-screen_height = 480
+#screen_width = 1024
+screen_width = 512
+screen_height = 768
 refresh_rate = 60.0  # values from 3.0 to 130.0
 image_width = 100
 image_height = 30
@@ -174,8 +175,8 @@ class Bar():
         self.par_offset = 10 ## number of channels per par
         for i in range(0, elements):
             self.bar[i] = color
-            dmx.set_rgb(i * self.par_offset + 1, color)
-        dmx.render()
+            #dmx.set_rgb(i * self.par_offset + 1, color)
+        #dmx.render()
         self.game_state = 0
 
     def set_game_state(self, state):
@@ -215,8 +216,8 @@ class Bar():
 
     def set_element(self, number, color):
         self.bar[number] = color
-        dmx.set_rgb(number * self.par_offset + 1, color)
-        dmx.render()
+        #dmx.set_rgb(number * self.par_offset + 1, color)
+        #dmx.render()
 
     def get_element(self, number):
         return self.bar[number]
@@ -224,30 +225,30 @@ class Bar():
     def set_all(self, color):
         for i in self.bar:
             self.bar[i] = color
-            dmx.set_rgb(i * self.par_offset + 1, color)
-        dmx.render()
+            #dmx.set_rgb(i * self.par_offset + 1, color)
+        #dmx.render()
 
     def set_all_at_level(self, color):
         for i in self.bar:
             if i >= self.bar_level:
                 self.bar[i] = color
-                dmx.set_rgb(i * self.par_offset + 1, color)
-        dmx.render()
+                #dmx.set_rgb(i * self.par_offset + 1, color)
+        #dmx.render()
 
     def set_random(self):
         for i in self.bar:
             color = random.randint(1,3)
             self.bar[i] = color
-            dmx.set_rgb(i * self.par_offset + 1, color)
-        dmx.render()
+            #dmx.set_rgb(i * self.par_offset + 1, color)
+        #dmx.render()
 
     def set_random_at_level(self):
         for i in self.bar:
             if i >= self.bar_level:
                 color = random.randint(1,3)
                 self.bar[i] = color
-                dmx.set_rgb(i * self.par_offset + 1, color)
-        dmx.render()
+                #dmx.set_rgb(i * self.par_offset + 1, color)
+        #dmx.render()
 
     def get_batch(self):
         self.sprites_bar = []
@@ -510,7 +511,12 @@ if __name__ == "__main__":
     sound_win = pyglet.media.load("data/audio/tada.wav", streaming = False)
     """
     ## init DMX
-    dmx = libs.dmx.DMX('/dev/ttyUSB0')
+    try:
+        dmx = libs.dmx.DMX('/dev/ttyUSB0')
+    except:
+        dmx = None
+        print("no DMX")
+
     #dmx.set_white(1)
     #dmx.render()
     ## create bar and players
