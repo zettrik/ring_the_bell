@@ -1,16 +1,18 @@
 #include "WiFi.h"
 #include "AsyncUDP.h"
-
+#include "EspMQTTClient.h"
 #include <time.h>
 #include <esp_wifi.h>
 
 /* gamepad */
-const char *my_name = "uno";
-const int gamepad_version = 1;
+const char *my_name = "dos";
+const int gamepad_version = 2;
 
 /* wifi */
-const char *ssid = "speedybees";
-const char *password = "rockyoursocksoff";
+//const char *ssid = "speedybees";
+//const char *password = "rockyoursocksoff";
+const char *ssid = "Bill Hicks";
+const char *password = "blum3ngi3ss3n";
 IPAddress local_ip(127, 0, 0, 0); // will be set via dhcp
 WiFiClient espClient;
 unsigned long wifi_connects = 0;
@@ -22,6 +24,17 @@ const unsigned long send_interval = 1000000; // 1s
 AsyncUDP udp;
 uint8_t *incoming = 0;
 char msg[15];
+
+/* mqtt */
+EspMQTTClient mqtt_client(
+  "WifiSSID",
+  "WifiPassword",
+  "192.168.1.111",  // MQTT Broker server ip
+  "", // mqtt user
+  "", // mqtt pw
+  "dos" // client name
+);
+const char *mqtt_topic = "test/foo";
 
 /* I/O */
 const byte led0 = 5; // on board LED
@@ -37,6 +50,7 @@ const byte led_3_b = 4;  // G4, blue LED on third button
 const byte button1 = 36; // first input button
 const byte button2 = 39;
 const byte button3 = 34;
+const byte touch1 = 15; // Touch Sensor 3 at G15
 const byte bat_sensor = 2; // G2, connect to batterie (+)
 byte button1_state = 0;
 byte button2_state = 0;
@@ -47,10 +61,12 @@ byte button3_pressed = 0;
 unsigned long button1_presstime = 0;
 unsigned long button2_presstime = 0;
 unsigned long button3_presstime = 0;
+int touch_value1 = 0;
+
 
 /* ntp */
-//const char *ntpServer = "1.debian.pool.ntp.org";
-const char *ntpServer = "172.16.2.2";
+const char *ntpServer = "1.debian.pool.ntp.org";
+//const char *ntpServer = "172.16.2.2";
 const unsigned long check_ntp_interval = 36000000;
 const long  gmtOffset_sec = 3600;
 const int   daylightOffset_sec = 3600;
@@ -98,31 +114,36 @@ void setup() {
     // system starting, blue leds
     buttons_all_blue();
     setup_wifi();
+    setup_mqtt();
     setup_udp_listener();
-    udp.broadcastTo("Hello my name is Uno running v1!", server_port);
+    //udp.broadcastTo("Hello my name is Uno running v1!", server_port);
     get_ntp_time();
+    /*
     // let all button leds blink so gamer sees everything is working
     buttons_rotation();
     buttons_single_color();
     buttons_flash();
     // system is up, green leds for 3 sec
     buttons_all_green();
-    delay(3000);
+    delay(1500);
     buttons_all_off();
+    */
 }
 
 void loop() {
   check_battery();
   now = system_get_time();
   read_buttons();
-  
+  read_touchsensors();
+  mqtt_client.loop();
+
   if ((before + send_interval) <= now) {
     send_states();
     before = now;
   }
-
+  
   //test_reaction();
-  buttons_rotation();
+  //buttons_rotation();
 }
 
 /*
@@ -136,6 +157,22 @@ void test_reaction() {
   sprintf(msg,"%16lu", button1_presstime);
   udp.broadcastTo(msg, server_port);
   digitalWrite(led_1_r, 0);
+}
+
+/*
+ * read touch sensors
+ */
+void read_touchsensors() {
+  touch_value1 = touchRead(touch1);
+  //Serial.print("touch: ");
+  //Serial.println(touch_value1);
+  if (touch_value1 < 50) {
+    //mqtt_client.publish(mqtt_topic, String(touch_value1));
+    digitalWrite(led0, 0);
+  }
+  else {
+    digitalWrite(led0, 1);
+  }
 }
 
 /*
@@ -167,6 +204,7 @@ void send_states() {
   digitalWrite(led_1_r, 1);
   sprintf(msg,"%16lu", button1_presstime);
   udp.broadcastTo(msg, server_port);
+  mqtt_client.publish(mqtt_topic, String(touch_value1));
 
   // some debug infos...
   Serial.println("press times in micro seconds (b1, b2, b3)");
@@ -233,8 +271,8 @@ void setup_udp_listener() {
 void check_battery() { 
   if (digitalRead(bat_sensor) < 600) {
     buttons_all_red();
-    delay(3000);
-    shutdown();
+    //delay(3000);
+    //shutdown();
   }
 }
 
@@ -273,6 +311,43 @@ void setup_wifi() {
   Serial.print("IP address: ");
   local_ip = WiFi.localIP();
   Serial.println(local_ip);
+  for (int i = 0; i < 10; i++) {
+    // blink fast when successful
+    digitalWrite(led0, 0);
+    delay(25);
+    digitalWrite(led0, 1);
+    delay(25);
+  }
+}
+
+/*
+ * mqtt
+ */
+void setup_mqtt() {
+  mqtt_client.enableDebuggingMessages();
+}
+// This function is called once everything is connected (Wifi and MQTT)
+// WARNING : YOU MUST IMPLEMENT IT IF YOU USE EspMQTTClient
+void onConnectionEstablished()
+{
+  // Subscribe to topic and display received message to Serial
+  mqtt_client.subscribe("test/bar", [](const String & payload) {
+    Serial.print("mqtt recieved at unixseconds: ");
+    Serial.println(unixseconds);
+    Serial.print("  now: ");
+    Serial.println(now);
+    Serial.print("mqtt message: ");
+    Serial.println(payload);
+    
+  });
+
+  // Publish a message to topic
+  mqtt_client.publish(mqtt_topic, "hooooray"); // You can activate the retain flag by setting the third parameter to true
+
+  // Execute delayed instructions
+  mqtt_client.executeDelayed(5 * 1000, []() {
+    mqtt_client.publish(mqtt_topic, "5 seconds later");
+  });
 }
 
 /*

@@ -1,6 +1,6 @@
 # Bill Of Material
 
-All electronic parts are easy to find in online shops (therefroe no links).
+All electronic parts are easy to find in online shops (therefore no links).
 
 The wood was bought as a big board and cut in pieces with a handsaw.
 

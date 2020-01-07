@@ -42,7 +42,8 @@ espressif to flash esp32 boards.
 * Install the current upstream Arduino IDE at the 1.8 level or later. The current version is at the [Arduino website](http://www.arduino.cc/en/main/software).
 * Start Arduino and open Preferences window.
 * Enter ```https://dl.espressif.com/dl/package_esp32_index.json``` into *Additional Board Manager URLs* field. You can add multiple URLs, separating them with commas.
-* Open Boards Manager from Tools > Board menu and install *esp32* platform (and don't forget to select your ESP32 board from Tools > Board menu after installation).
+* Open Boards Manager from Tools > Board menu and install *esp32* platform.
+* Select your ESP32 board from Tools > Board menu after installation (in our case "NodeMCU-32S").
 
 * [Espressif Esp32 @ github](https://github.com/espressif/arduino-esp32)
 
