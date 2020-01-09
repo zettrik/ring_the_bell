@@ -6,7 +6,7 @@
 There is a software prototype of the game for easier development, testing
 the rules and joy of gameplay.
 
-![Screenshot Prototype](doc/prototype_screenshot.png)
+![Screenshot Prototype](prototype_screenshot.png)
 
 It uses pyglet as game engine. Most software the protoype depends on is in the
 Debian Linux distribution. The newest version of pyglet comes via pip. Install
