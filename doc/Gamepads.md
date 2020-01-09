@@ -21,14 +21,14 @@ Setup: BMS :left_right_arrow: 2x Li-Ion battery 4.2V :left_right_arrow: 5V step 
 
 Wiring of batteries, buttons and LEDs to the ESP32:
 
-![gamepad, buttons, leds](gamepad/gamepad_with_3_buttons_Steckplatine.png)
+![gamepad, buttons, leds](gamepad_with_3_buttons_Steckplatine.png)
 
 Two batteries are used in parallel with 2.200mAh each. The Gamepad uses between 70mA and 200mA. So you should be able to play at least 24h. 8) 
 It will blink red and poweroff if battery voltage is below 3.4V. Recharge via USB, powerplug or change the cells. You find many of them in old notebook batteries.
 
 ESP32 Pinmap:
 
-![ESP32 Pinmap](gamepad/esp32_pinmap.png)
+![ESP32 Pinmap](esp32_pinmap.png)
 
 * [ESP32 Pin Reference](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/)
 * [ESP32 wroom Fritzing part](https://github.com/troelssiggaard/ESP32-fritzing-module)
@@ -67,7 +67,7 @@ for a quick introduction.
   * LEDs
   * udp packets
 
-![Gamepad flowchart](gamepad/gamepad_flowchart.png)
+![Gamepad flowchart](doc/gamepad_flowchart.png)
 
 ### UDP Packets
 * timestamp, button1, color, dt, button2, color, dt, button3, color, dt
