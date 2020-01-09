@@ -67,7 +67,7 @@ for a quick introduction.
   * LEDs
   * udp packets
 
-![Gamepad flowchart](doc/gamepad_flowchart.png)
+![Gamepad flowchart](gamepad_flowchart.png)
 
 ### UDP Packets
 * timestamp, button1, color, dt, button2, color, dt, button3, color, dt
