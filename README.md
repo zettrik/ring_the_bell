@@ -1,7 +1,7 @@
 # ring_the_bell
 *speedy bees*
 
-![Screenshot Prototype](docs/prototype_screenshot.png)
+![Screenshot Prototype](doc/prototype_screenshot.png)
 
 ## Game Principle
 
@@ -29,7 +29,7 @@ Will you reach the top and ring the bell?
 The Game is a proof of concept and fun project. One focus was to document small
 details. Have fun while building it or a similar game.
 
-* [Gamecontrolmaster](/docs/Gamecontrolmaster.md)
-* [Display (RGB Lights or Projector)](/docs/Display.md)
-* [Gamepads](docs/Gamepads.md)
+* [Gamecontrolmaster](/doc/Gamecontrolmaster.md)
+* [Display (RGB Lights or Projector)](/doc/Display.md)
+* [Gamepads](doc/Gamepads.md)
 
