@@ -14,8 +14,9 @@ import pyglet.gl as gl
 import random
 import datetime
 import time
-import libs.udp_server
-import libs.dmx
+#import libs.udp_server
+#import libs.dmx
+import libs.mqtt
 
 #screen_width = 1024
 screen_width = 512
@@ -85,7 +86,7 @@ def set_freeze():
     count_time = int((bar_elements - bar.get_level()) / 3 )
     print("DEBUG countdown starts with: %s" % count_time)
     recieved_packets = {}
-    udp.clear_packet_cache()
+    #udp.clear_packet_cache()
     bar.save_state()
     p1.save_state()
     p2.save_state()
@@ -100,7 +101,7 @@ def set_freeze():
     print(p2.get_saved_state())
     print(p3.get_saved_state())
     #saved_state = all saved player states
-    recieved_packets = udp.get_packets()
+    #recieved_packets = udp.get_packets()
     reactions = {}
     for p in recieved_packets:
         print("DEBUG udp packet at: %s from: %s contained: %s" \
@@ -184,7 +185,7 @@ class Bar():
             see all possible game states below
         """
         self.game_state = state
-        udp.send(self.game_state)
+        #udp.send(self.game_state)
         if self.game_state == 0:
             print("INFO game state: START")
         elif self.game_state == 1:
@@ -368,7 +369,7 @@ def on_key_press(symbol, modifiers):
     if symbol == pyglet.window.key.Q or symbol == pyglet.window.key.ESCAPE:
         print('INFO "Q" or "ESC" key was pressed. Good bye!')
         pyglet.app.exit()
-        udp.stop()
+        #udp.stop()
     elif symbol == pyglet.window.key._1 or symbol == pyglet.window.key.NUM_1:
         print('INFO "1" key was pressed.')
         bar.set_element(1, 1)
@@ -444,10 +445,14 @@ def on_key_press(symbol, modifiers):
         bar.set_game_state(7)
     elif symbol == pyglet.window.key.E:
         print('INFO "E" key was pressed.')
+        """
         recieved_packets = udp.get_packets()
         for p in recieved_packets:
             print("udp packet at: %s from: %s contained: %s" \
                     % (p, recieved_packets[p][0], recieved_packets[p][1]))
+        """
+    elif symbol == pyglet.window.key.M:
+        print('INFO "M" key was pressed.')
     else:
         print('INFO %s key was pressed.' % str(symbol))
 
@@ -493,9 +498,11 @@ def on_joybutton_release(joystick, button):
 
 
 if __name__ == "__main__":
-    ## start local UDP server on given port 
+    """
+    ## start local UDP server on given port
     udp = libs.udp_server.UDP_Server(udp_server_port)
     udp.start()
+    """
     ## set pyglet details
     pyglet.clock.schedule_interval(update, 1.0 / refresh_rate)
     pyglet.clock.set_fps_limit(125)
@@ -510,12 +517,14 @@ if __name__ == "__main__":
     #sound_win = pyglet.resource.media("tada.mp3")
     sound_win = pyglet.media.load("data/audio/tada.wav", streaming = False)
     """
+    """
     ## init DMX
     try:
         dmx = libs.dmx.DMX('/dev/ttyUSB0')
     except:
         dmx = None
         print("no DMX")
+    """
 
     #dmx.set_white(1)
     #dmx.render()

@@ -1,15 +1,17 @@
 #include <WiFi.h>
-#include <AsyncUDP.h>
 #include <EspMQTTClient.h>
 #include <time.h>
 #include <esp_wifi.h>
-#include <ESPmDNS.h>  // for ota
-#include <WiFiUdp.h>  // for ota
+//#include <ESPmDNS.h>  // for ota
+//#include <WiFiUdp.h>  // for ota
 #include <ArduinoOTA.h>  // for ota
 
-/* gamepad */
-const char *my_name = "node-dos";
+/* gamepad info & modes*/
+const char *my_name = "gamepad-uno";
 const int gamepad_version = 2;
+char game_mode = ' ';
+unsigned long mode_interval = 1000000; // 1s in µs
+unsigned long send_interval = 10000000; // 10s in µs
 
 /* wifi */
 //const char *ssid = "speedybees";
@@ -21,14 +23,6 @@ WiFiClient espClient;
 unsigned long wifi_connects = 0;
 long wifi_signal = 0;
 
-/* udp */
-IPAddress server_ip(172, 16, 2, 2);
-const int server_port = 3333;
-const unsigned long send_interval = 1000000; // 1s
-AsyncUDP udp;
-uint8_t *incoming = 0;
-char msg[15];
-
 /* mqtt */
 EspMQTTClient mqtt_client(
   "WifiSSID",
@@ -36,9 +30,13 @@ EspMQTTClient mqtt_client(
   "192.168.1.111",  // MQTT Broker server ip
   "", // mqtt user
   "", // mqtt pw
-  "dos" // client name
+  "uno" // client name
 );
-const char *mqtt_topic = "test/foo";
+const char *topic_status = "gamepad/dos/status";
+const char *topic_in = "gamepad/dos/in";
+const char *topic_out = "gamepad/dos/out";
+const char *topic_mode = "gamepad/dos/mode";
+char msg[15];
 
 /* I/O */
 const byte led0 = 5; // on board LED
@@ -67,7 +65,6 @@ unsigned long button2_presstime = 0;
 unsigned long button3_presstime = 0;
 int touch_value1 = 0;
 
-
 /* ntp */
 const char *ntpServer = "1.debian.pool.ntp.org";
 //const char *ntpServer = "172.16.2.2";
@@ -76,10 +73,12 @@ const long  gmtOffset_sec = 3600;
 const int   daylightOffset_sec = 3600;
 unsigned long now = 0;
 unsigned long before = 0;
+unsigned long interval_before = 0;
 unsigned long rtc_now;
 unsigned long time_delta;
 unsigned long ntp_last_check;
 time_t unixseconds;
+struct timeval thistime;
 
 /* buttons leds */
 //long random;
@@ -93,6 +92,7 @@ void setup() {
   Serial.print("version: ");
   Serial.println(gamepad_version);
   Serial.println("---");
+  setCpuFrequencyMhz(240);
   pinMode(led0, OUTPUT);
   digitalWrite(led0, 0);
   pinMode(led_1_r, OUTPUT);
@@ -109,29 +109,26 @@ void setup() {
   pinMode(button2, INPUT_PULLDOWN);
   pinMode(bat_sensor, INPUT_PULLDOWN);
 
-  // shutdown on low battery
   check_battery();    
    
   // initialize random number generator
   randomSeed(analogRead(0));
 
-  // system starting, blue leds
+  // system starting, all buttons blue
   buttons_all_blue();
   setup_wifi();
   setup_mqtt();
-  setup_udp_listener();
-  //udp.broadcastTo("Hello my name is Uno running v1!", server_port);
   get_ntp_time();
-  /*
+  
+  
   // let all button leds blink so gamer sees everything is working
-  buttons_rotation();
+  //buttons_rotation();
   buttons_single_color();
   buttons_flash();
   // system is up, green leds for 3 sec
   buttons_all_green();
-  delay(1500);
+  delay(1000);
   buttons_all_off();
-  */
 
   // prepare firmware updates over the air
   // keep the firewall on your arduino dev pc open
@@ -141,32 +138,44 @@ void setup() {
 void loop() {
   ArduinoOTA.handle(); // listening for new firmwares
   check_battery();
-  now = system_get_time();
+  gettimeofday(&thistime, NULL);
+  now = (thistime.tv_sec * 1000000 + thistime.tv_usec);
+  //now = system_get_time();
   read_buttons();
+  
   read_touchsensors();
   mqtt_client.loop();
 
+  /* regular status reports */
   if ((before + send_interval) <= now) {
     check_wifi_signal();
-    send_states();
+    mqtt_client.publish(topic_status, String(wifi_signal));
+    read_touchsensors();
+    mqtt_client.publish(topic_status, String(touch_value1));
     before = now;
+    send_button_times();
+    reset_buttons();
   }
   
-  //test_reaction();
-  //buttons_rotation();
-}
-
-/*
- * test reaction time
- */
-void test_reaction() {
-  Serial.println("testing reaction time");
-  delay(5700);
-  digitalWrite(led_1_r, 1);
-  button1_presstime = now - before;
-  sprintf(msg,"%16lu", button1_presstime);
-  udp.broadcastTo(msg, server_port);
-  digitalWrite(led_1_r, 0);
+  /* game modes */
+  if ((interval_before + mode_interval) < now) {
+    if (game_mode == 'r') {
+      Serial.println("in random mode");
+      mode_random();
+    }
+    else if (game_mode == 'f') {
+      Serial.println("in freeze mode");
+      mqtt_client.publish(topic_mode, "f");
+      mode_freeze();
+    }
+    else {
+      //buttons_rotation();
+      //print_local_time();
+    }
+    Serial.print("now: ");
+    Serial.println(now);
+    interval_before = now;
+  }
 }
 
 /*
@@ -201,15 +210,12 @@ void read_buttons() {
 }
 
 /*
- * send button states via udp
+ * send button states via mqtt
  */
-void send_states() {      
+void send_button_times() {
   digitalWrite(led_1_r, 1);
   sprintf(msg,"%16lu", button1_presstime);
-  udp.broadcastTo(msg, server_port);
-  mqtt_client.publish("test/touch", String(touch_value1));
-  mqtt_client.publish("test/wifi", String(wifi_signal));
-
+  
   // some debug infos...
   Serial.println("press times in micro seconds (b1, b2, b3)");
   Serial.print(button1_presstime);
@@ -222,7 +228,11 @@ void send_states() {
   Serial.println(unixseconds);
   Serial.print("uptime: ");
   Serial.println(now);
-        
+  
+  mqtt_client.publish(topic_out, "b1");
+}
+
+void reset_buttons() {
   button1_pressed = 0;
   button2_pressed = 0;
   button3_pressed = 0;
@@ -230,43 +240,6 @@ void send_states() {
   button2_presstime = 0;
   button3_presstime = 0;
   digitalWrite(led_1_r, 0);
-}
-
-/*
- * udp
- */
-void setup_udp_listener() {
-    if(udp.listen(server_port)) {
-        Serial.print("UDP Listening on: ");
-        Serial.print(WiFi.localIP());
-        Serial.print(":");
-        Serial.println(server_port);
-        udp.onPacket([](AsyncUDPPacket packet) {
-            Serial.print("UDP Packet Type: ");
-            Serial.print(packet.isBroadcast()?"Broadcast":packet.isMulticast()?"Multicast":"Unicast");
-            Serial.print(", From: ");
-            Serial.print(packet.remoteIP());
-            Serial.print(":");
-            Serial.print(packet.remotePort());
-            Serial.print(", To: ");
-            Serial.print(packet.localIP());
-            Serial.print(":");
-            Serial.print(packet.localPort());
-            Serial.print(", Length: ");
-            Serial.print(packet.length());
-            Serial.print(", Data: ");
-            Serial.write(packet.data(), packet.length());
-            Serial.println();
-            incoming = packet.data();
-            /*TODO fix comparison
-            if (incoming == 2) {
-              Serial.println("---------FREEZE-----------");
-              //get in freeze mode
-            }
-            incoming = 0;
-            */
-        });
-    }
 }
 
 /*
@@ -349,16 +322,31 @@ void setup_mqtt() {
 void onConnectionEstablished()
 {
   // Subscribe to topic and display received message to Serial
-  mqtt_client.subscribe("test/in", [](const String & payload) {
+  mqtt_client.subscribe(topic_in, [](const String & payload) {
     Serial.print("mqtt recieved at unixseconds: ");
     Serial.println(unixseconds);
     Serial.print("  now: ");
     Serial.println(now);
     Serial.print("mqtt message: ");
     Serial.println(payload);
-    mqtt_client.publish("test/out", String(unixseconds));
-    mqtt_client.publish("test/out", String(now));
-    mqtt_client.publish("test/out", String(payload));
+    if ( payload == "t") {
+      mqtt_client.publish(topic_mode, String('t'));
+      mqtt_client.publish(topic_out, String(unixseconds));
+      mqtt_client.publish(topic_out, String(now));
+      get_ntp_time();
+    }
+    if ( payload == "r") {
+      mqtt_client.publish(topic_mode, String('r'));
+      mode_random();
+    }
+    if ( payload == "f") {
+      mqtt_client.publish(topic_mode, String('f'));
+      mqtt_client.publish(topic_out, String(unixseconds));
+      mqtt_client.publish(topic_out, String(now));
+      mode_freeze();
+    }
+    
+    mqtt_client.publish(topic_out, String(payload));
   });
 
   // Publish a message to topic
@@ -383,8 +371,7 @@ void setup_ota() {
   // MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
   //ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
 
-  ArduinoOTA
-    .onStart([]() {
+  ArduinoOTA.onStart([]() {
       String type;
       if (ArduinoOTA.getCommand() == U_FLASH)
         type = "sketch";
@@ -392,13 +379,13 @@ void setup_ota() {
         type = "filesystem";
       // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
       Serial.println("Start updating " + type);
-    })
-    .onEnd([]() {
+    });
+  ArduinoOTA.onEnd([]() {
       Serial.println("\nEnd");
-    })
-    .onProgress([](unsigned int progress, unsigned int total) {
+    });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-    })
+    });
     .onError([](ota_error_t error) {
       Serial.printf("Error[%u]: ", error);
       if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
@@ -475,7 +462,6 @@ void buttons_single_color() {
   }
 }
 
-
 void buttons_all_red() {
   set_buttons(1,0,0,1,0,0,1,0,0);
 }
@@ -505,11 +491,32 @@ void buttons_flash() {
   }
 }
 
-/*
-void button_random_rgb() {
-    rand = random(1, 3);
+void mode_random() {
+  game_mode = 'r';
+  buttons_random_rgb();
 }
-*/
+
+void mode_freeze() {
+  game_mode = 'f';
+  for (int i = 0; i <= 5; i++) {
+    buttons_random_rgb();
+    delay(500);
+  }
+  buttons_random_rgb();
+  /* TODO
+  save_timestamp();
+  read buttons press times
+  submit via mqtt
+  */
+  game_mode = ' ';
+}
+
+void buttons_random_rgb() {
+  set_buttons( random(1, 3), random(1, 3), random(1, 3),
+    random(1, 3), random(1, 3), random(1, 3),
+    random(1, 3), random(1, 3), random(1, 3)
+  );
+}
 
 void set_buttons(int l1r, int l1g, int l1b, int l2r, int l2g, int l2b, int l3r, int l3g, int l3b){
     digitalWrite(led_1_r, l1r);
